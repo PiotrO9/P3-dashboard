@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom gradient backgrounds for login page */
+@layer components {
+  .login-gradient {
+    background: linear-gradient(135deg, 
+      rgb(226, 232, 240) 0%, 
+      rgb(203, 213, 225) 25%, 
+      rgb(186, 200, 221) 50%, 
+      rgb(165, 180, 208) 75%, 
+      rgb(148, 163, 184) 100%);
+  }
+  
+  .glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(209, 213, 219, 0.4);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+  
+  .glass-card-dark {
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(71, 85, 105, 0.4);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  }
+  
+  .icon-gradient {
+    background: linear-gradient(135deg, rgb(29, 78, 216), rgb(67, 56, 202));
+  }
+  
+  .text-gradient {
+    background: linear-gradient(135deg, rgb(15, 23, 42), rgb(51, 65, 85));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .btn-gradient {
+    background: linear-gradient(135deg, rgb(37, 99, 235), rgb(79, 70, 229));
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.25);
+    border: none;
+  }
+  
+  .btn-gradient:hover {
+    background: linear-gradient(135deg, rgb(29, 78, 216), rgb(67, 56, 202));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
+  }
+  
+  .btn-gradient-dark {
+    background: linear-gradient(135deg, rgb(59, 130, 246), rgb(99, 102, 241));
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.4);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+  
+  .btn-gradient-dark:hover {
+    background: linear-gradient(135deg, rgb(37, 99, 235), rgb(79, 70, 229));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+    border-color: rgba(59, 130, 246, 0.5);
+  }
+  
+  /* Dodatkowe klasy dla lepszego kontrastu */
+  .high-contrast-text {
+    color: rgb(15, 23, 42);
+    font-weight: 600;
+  }
+  
+  .high-contrast-input {
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgb(203, 213, 225);
+    color: rgb(15, 23, 42);
+  }
+  
+  .high-contrast-input:focus {
+    border-color: rgb(37, 99, 235);
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  
+  .high-contrast-placeholder::placeholder {
+    color: rgb(100, 116, 139);
+    opacity: 0.8;
+  }
+
+  /* Dark mode improvements */
+  @media (prefers-color-scheme: dark) {
+    .high-contrast-input {
+      background-color: rgba(30, 41, 59, 0.9);
+      border-color: rgb(71, 85, 105);
+      color: rgb(226, 232, 240);
+    }
+    
+    .high-contrast-input:focus {
+      border-color: rgb(59, 130, 246);
+      background-color: rgb(30, 41, 59);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    
+    .high-contrast-placeholder::placeholder {
+      color: rgb(148, 163, 184);
+      opacity: 0.9;
+    }
+  }
+}
