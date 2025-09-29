@@ -35,34 +35,40 @@ P3-dashboard/
 ## 🚀 Features Implemented
 
 ### Authentication
+
 - ✅ Login page with UForm (email + password)
 - ✅ Auth middleware protecting routes marked [AUTH]
 - ✅ Logout functionality
 - ✅ Auto-redirect based on authentication state
 
 ### Layout & Navigation
+
 - ✅ Sidebar navigation using NuxtUI components
 - ✅ Top bar with user info and logout button
 - ✅ Responsive design with clean minimal interface
 
 ### Feature Flags Management
+
 - ✅ **Flags List (`/flags`)** - UTable with toggle switches for PATCH /flags/:id/toggle
 - ✅ Rules management modal (POST /flags/:id/rules, DELETE /flags/:id/rules)
 - ✅ **Flag Evaluation (`/flags/evaluate`)** - Testing interface for POST /evaluate
 - 🔄 Add/Edit forms (TODO: implement POST /flags, PUT /flags/:id)
 
 ### Users Management
+
 - ✅ **Users List (`/users`)** - UTable from GET /users [AUTH]
 - ✅ Delete functionality (DELETE /users/:id)
 - 🔄 User details, add form, and profile pages (TODO)
 
 ### Dashboard
+
 - ✅ Overview cards showing statistics from GET /flags, GET /users, GET /groups
 - ✅ Recent flags table
 - ✅ Quick action buttons
 - ✅ System status indicators
 
 ### Groups Management
+
 - 🔄 Complete groups management (TODO)
 
 ## 📝 Key Implementation: Feature Flags List Page
@@ -71,6 +77,7 @@ Here's the main **`pages/flags/index.vue`** implementation as requested:
 
 \`\`\`vue
 <template>
+
   <div class="space-y-6">
     <div class="flex justify-between items-center">
       <div>
@@ -120,10 +127,11 @@ Here's the main **`pages/flags/index.vue`** implementation as requested:
             @update:model-value="toggleFlag(row)"
           />
         </template>
-        
+
         <!-- Additional column templates... -->
       </UTable>
     </UCard>
+
   </div>
 </template>
 
@@ -165,6 +173,7 @@ const toggleFlag = async (flag: FeatureFlag) => {
   }
 }
 </script>
+
 \`\`\`
 
 ## 🔧 API Integration
@@ -175,19 +184,19 @@ The **`useApi`** composable provides typed methods for all backend endpoints:
 const { flags, users, groups, auth } = useApi()
 
 // Feature Flags
-await flags.getAll()                    // GET /flags
-await flags.toggle(id)                  // PATCH /flags/:id/toggle
-await flags.addRule(id, rule)          // POST /flags/:id/rules
-await flags.evaluate(request)          // POST /evaluate
+await flags.getAll() // GET /flags
+await flags.toggle(id) // PATCH /flags/:id/toggle
+await flags.addRule(id, rule) // POST /flags/:id/rules
+await flags.evaluate(request) // POST /evaluate
 
 // Authentication
-await auth.login(credentials)          // POST /users/login
-await auth.logout()                    // POST /users/logout [AUTH]
+await auth.login(credentials) // POST /users/login
+await auth.logout() // POST /users/logout [AUTH]
 
 // Users (all require AUTH)
-await users.getAll()                   // GET /users [AUTH]
-await users.getMe()                    // GET /users/me [AUTH]
-await users.delete(id)                 // DELETE /users/:id [AUTH]
+await users.getAll() // GET /users [AUTH]
+await users.getMe() // GET /users/me [AUTH]
+await users.delete(id) // DELETE /users/:id [AUTH]
 \`\`\`
 
 ## 🛡️ Authentication Middleware
@@ -197,18 +206,18 @@ Routes are protected using the **`auth.ts`** middleware:
 \`\`\`typescript
 // middleware/auth.ts
 export default defineNuxtRouteMiddleware(() => {
-  const { isAuthenticated } = useAuth()
-  
-  if (!isAuthenticated.value) {
-    return navigateTo('/login')
-  }
+const { isAuthenticated } = useAuth()
+
+if (!isAuthenticated.value) {
+return navigateTo('/login')
+}
 })
 \`\`\`
 
 Pages use it with:
 \`\`\`typescript
 definePageMeta({
-  middleware: 'auth'
+middleware: 'auth'
 })
 \`\`\`
 
@@ -234,9 +243,11 @@ definePageMeta({
 
 2. **Set API base URL:**
    \`\`\`bash
-   # Create .env file
-   API_BASE_URL=http://localhost:3001
-   \`\`\`
+
+    # Create .env file
+
+    API_BASE_URL=http://localhost:3001
+    \`\`\`
 
 3. **Run development server:**
    \`\`\`bash
@@ -244,13 +255,14 @@ definePageMeta({
    \`\`\`
 
 4. **Access the application:**
-   - Navigate to `http://localhost:3000`
-   - Login page will be shown if not authenticated
-   - Use the sidebar to navigate between sections
+    - Navigate to `http://localhost:3000`
+    - Login page will be shown if not authenticated
+    - Use the sidebar to navigate between sections
 
 ## 📋 TODO Items
 
 ### High Priority
+
 - [ ] Implement POST /flags and PUT /flags/:id for flag creation/editing
 - [ ] Complete user details, add form, and profile pages
 - [ ] Implement full groups management (list, add/edit, member management)
@@ -258,6 +270,7 @@ definePageMeta({
 - [ ] Error handling and loading states refinement
 
 ### Enhancement Opportunities
+
 - [ ] Add pagination for large data sets
 - [ ] Implement real-time updates with WebSocket
 - [ ] Add keyboard shortcuts for power users
