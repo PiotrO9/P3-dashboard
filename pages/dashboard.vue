@@ -95,99 +95,118 @@ onMounted(() => {
 </script>
 
 <template>
-	<div class="min-h-screen bg-white dark:bg-slate-900">
-		<div class="max-w-6xl mx-auto px-4 py-8 space-y-10">
+	<div class="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
+		<div class="max-w-6xl mx-auto space-y-10 px-4 sm:px-6 lg:px-8 py-10">
 			<!-- Header -->
 			<div class="text-center space-y-2">
-				<h1 class="text-2xl font-semibold text-slate-800 dark:text-slate-100">Dashboard</h1>
-				<p class="text-sm text-slate-500 dark:text-slate-400">
-					Overview of your feature flags and system status.
-				</p>
+				<div
+					class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 mb-2"
+				>
+					<UIcon name="i-heroicons-chart-bar" class="w-6 h-6" />
+				</div>
+				<h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+				<p class="text-gray-500">Overview of your feature flags and system status.</p>
 			</div>
 
 			<!-- Overview Cards -->
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-				<UCard class="p-4 border rounded-lg shadow-sm bg-white dark:bg-slate-800">
-					<p class="text-sm text-slate-500">Total Flags</p>
-					<p class="text-2xl font-semibold text-slate-800 dark:text-slate-100">{{ stats.totalFlags }}</p>
-					<p class="text-xs text-green-600 mt-1">+{{ stats.newFlagsThisWeek }} this week</p>
-				</UCard>
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+				<div class="minimal-card minimal-card-hover transition hover:shadow-md hover:-translate-y-0.5">
+					<div class="flex items-center gap-2 mb-2 text-gray-500">
+						<UIcon name="i-heroicons-flag" class="w-4 h-4" />
+						<p class="text-sm">Total Flags</p>
+					</div>
+					<p class="text-2xl font-semibold text-gray-900">{{ stats.totalFlags }}</p>
+					<p class="text-xs text-green-600 mt-2">+{{ stats.newFlagsThisWeek }} this week</p>
+				</div>
 
-				<UCard class="p-4 border rounded-lg shadow-sm bg-white dark:bg-slate-800">
-					<p class="text-sm text-slate-500">Active Flags</p>
-					<p class="text-2xl font-semibold text-emerald-600">{{ stats.activeFlags }}</p>
-					<p class="text-xs text-slate-500 mt-1">
+				<div class="minimal-card minimal-card-hover transition hover:shadow-md hover:-translate-y-0.5">
+					<div class="flex items-center gap-2 mb-2 text-gray-500">
+						<UIcon name="i-heroicons-check-circle" class="w-4 h-4" />
+						<p class="text-sm">Active Flags</p>
+					</div>
+					<p class="text-2xl font-semibold text-green-600">{{ stats.activeFlags }}</p>
+					<p class="text-xs text-gray-500 mt-2">
 						{{ stats.totalFlags > 0 ? ((stats.activeFlags / stats.totalFlags) * 100).toFixed(1) : 0 }}% of
 						all
 					</p>
-				</UCard>
+				</div>
 
-				<UCard class="p-4 border rounded-lg shadow-sm bg-white dark:bg-slate-800">
-					<p class="text-sm text-slate-500">Total Users</p>
-					<p class="text-2xl font-semibold text-slate-800 dark:text-slate-100">{{ stats.totalUsers }}</p>
-					<p class="text-xs text-blue-600 mt-1">+{{ stats.newUsersThisWeek }} this week</p>
-				</UCard>
+				<div class="minimal-card minimal-card-hover transition hover:shadow-md hover:-translate-y-0.5">
+					<div class="flex items-center gap-2 mb-2 text-gray-500">
+						<UIcon name="i-heroicons-users" class="w-4 h-4" />
+						<p class="text-sm">Total Users</p>
+					</div>
+					<p class="text-2xl font-semibold text-gray-900">{{ stats.totalUsers }}</p>
+					<p class="text-xs text-blue-600 mt-2">+{{ stats.newUsersThisWeek }} this week</p>
+				</div>
 
-				<UCard class="p-4 border rounded-lg shadow-sm bg-white dark:bg-slate-800">
-					<p class="text-sm text-slate-500">Total Groups</p>
-					<p class="text-2xl font-semibold text-slate-800 dark:text-slate-100">{{ stats.totalGroups }}</p>
-					<p class="text-xs text-slate-500 mt-1">{{ stats.averageGroupSize }} avg members</p>
-				</UCard>
+				<div class="minimal-card minimal-card-hover transition hover:shadow-md hover:-translate-y-0.5">
+					<div class="flex items-center gap-2 mb-2 text-gray-500">
+						<UIcon name="i-heroicons-user-group" class="w-4 h-4" />
+						<p class="text-sm">Total Groups</p>
+					</div>
+					<p class="text-2xl font-semibold text-gray-900">{{ stats.totalGroups }}</p>
+					<p class="text-xs text-gray-500 mt-2">{{ stats.averageGroupSize }} avg members</p>
+				</div>
 			</div>
 
 			<!-- Recent Activity and Quick Actions -->
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 				<!-- Recent Flags -->
-				<UCard class="border rounded-lg shadow-sm bg-white dark:bg-slate-800 lg:col-span-2">
-					<template #header>
-						<h3 class="text-base font-medium text-slate-800 dark:text-slate-100">Recent Feature Flags</h3>
-					</template>
-					<UTable
-						:rows="recentFlags"
-						:columns="flagColumns"
-						:loading="flagsLoading"
-						class="text-sm text-slate-700 dark:text-slate-200"
-						:empty-state="{
-							icon: 'i-heroicons-flag',
-							label: 'No flags yet',
-							description: 'Create your first feature flag to get started.',
-						}"
-					>
-						<template #name-data="{ row }">
-							<div>
-								<div class="font-medium text-slate-800 dark:text-slate-100">{{ row.name }}</div>
-								<div class="text-xs text-slate-500 dark:text-slate-400">{{ row.key }}</div>
-							</div>
-						</template>
-						<template #status-data="{ row }">
-							<UBadge :color="row.enabled ? 'green' : 'gray'" variant="soft">
-								{{ row.enabled ? 'Active' : 'Inactive' }}
-							</UBadge>
-						</template>
-						<template #updatedAt-data="{ row }">
-							<span class="text-xs text-slate-500 dark:text-slate-400">
-								{{ formatRelativeTime(row.updatedAt) }}
-							</span>
-						</template>
-					</UTable>
-				</UCard>
+				<div class="minimal-card lg:col-span-2">
+					<h3 class="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-2 mb-4">
+						Recent Feature Flags
+					</h3>
+					<div class="table-minimal">
+						<UTable
+							:rows="recentFlags"
+							:columns="flagColumns"
+							:loading="flagsLoading"
+							class="text-sm"
+							:empty-state="{
+								icon: 'i-heroicons-flag',
+								label: 'No flags yet',
+								description: 'Create your first feature flag to get started.',
+							}"
+						>
+							<template #name-data="{ row }">
+								<div>
+									<div class="font-medium text-gray-900">{{ row.name }}</div>
+									<div class="text-xs text-gray-500">{{ row.key }}</div>
+								</div>
+							</template>
+							<template #status-data="{ row }">
+								<span :class="row.enabled ? 'badge-success' : 'badge-neutral'">
+									{{ row.enabled ? 'Active' : 'Inactive' }}
+								</span>
+							</template>
+							<template #updatedAt-data="{ row }">
+								<span class="text-xs text-gray-500">
+									{{ formatRelativeTime(row.updatedAt) }}
+								</span>
+							</template>
+						</UTable>
+					</div>
+				</div>
 
 				<!-- Quick Actions -->
-				<UCard class="border rounded-lg shadow-sm bg-white dark:bg-slate-800">
-					<template #header>
-						<h3 class="text-base font-medium text-slate-800 dark:text-slate-100">Quick Actions</h3>
-					</template>
-					<div class="space-y-2">
-						<UButton block size="sm" @click="navigateTo('/flags/new')">Create Feature Flag</UButton>
-						<UButton block size="sm" variant="outline" @click="navigateTo('/users/new')">Add User</UButton>
-						<UButton block size="sm" variant="outline" @click="navigateTo('/groups/new')"
-							>Create Group</UButton
-						>
-						<UButton block size="sm" variant="outline" @click="navigateTo('/flags/evaluate')"
-							>Evaluate Flag</UButton
-						>
+				<div class="minimal-card">
+					<h3 class="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-2 mb-4">
+						Quick Actions
+					</h3>
+					<div class="space-y-3">
+						<button class="btn-minimal w-full" @click="navigateTo('/flags/new')">
+							Create Feature Flag
+						</button>
+						<button class="btn-minimal-outline w-full" @click="navigateTo('/users/new')">Add User</button>
+						<button class="btn-minimal-outline w-full" @click="navigateTo('/groups/new')">
+							Create Group
+						</button>
+						<button class="btn-minimal-outline w-full" @click="navigateTo('/flags/evaluate')">
+							Evaluate Flag
+						</button>
 					</div>
-				</UCard>
+				</div>
 			</div>
 		</div>
 	</div>

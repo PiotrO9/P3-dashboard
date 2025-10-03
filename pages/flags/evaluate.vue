@@ -1,16 +1,14 @@
 <template>
 	<div class="space-y-6">
 		<div>
-			<h1 class="text-2xl font-bold text-gray-900">Evaluate Feature Flag</h1>
-			<p class="mt-1 text-sm text-gray-600">Test your feature flags with different contexts and conditions.</p>
+			<h1 class="text-2xl font-semibold text-minimal-primary">Evaluate Feature Flag</h1>
+			<p class="mt-1 text-minimal-secondary">Test your feature flags with different contexts and conditions.</p>
 		</div>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 			<!-- Evaluation Form -->
-			<UCard>
-				<template #header>
-					<h3 class="text-lg font-medium">Evaluation Input</h3>
-				</template>
+			<div class="minimal-card">
+				<h3 class="text-lg font-medium text-minimal-primary mb-4">Evaluation Input</h3>
 
 				<UForm :schema="evaluationSchema" :state="evaluationState" class="space-y-4" @submit="evaluateFlag">
 					<UFormGroup label="Flag Key" name="flagKey" required>
@@ -29,7 +27,7 @@
 						{{ evaluating ? 'Evaluating...' : 'Evaluate Flag' }}
 					</UButton>
 				</UForm>
-			</UCard>
+			</div>
 
 			<!-- Results -->
 			<UCard>

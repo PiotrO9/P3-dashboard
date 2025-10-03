@@ -7,8 +7,8 @@ const route = useRoute()
 
 const userMenuItems = [
 	[{ label: user.value?.email || '', slot: 'account', disabled: true }],
-	[{ label: 'Profile', icon: 'i-heroicons-user', click: () => navigateTo('/users/profile') }],
-	[{ label: 'Settings', icon: 'i-heroicons-cog-6-tooth', click: () => console.log('Settings') }],
+	[{ label: 'Dashboard', icon: 'i-heroicons-home', click: () => navigateTo('/dashboard') }],
+	[{ label: 'Profile', icon: 'i-heroicons-user', click: () => navigateTo('/users/profiles') }],
 ]
 
 const pageTitle = computed(() => {
@@ -42,39 +42,33 @@ onMounted(() => {
 </script>
 
 <template>
-	<div class="h-screen flex">
+	<div class="h-screen flex minimal-container">
 		<div class="flex-1 flex flex-col overflow-hidden">
-			<header class="bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 px-6 py-3">
+			<header class="header-minimal">
 				<div class="flex items-center justify-between">
-					<h1 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+					<h1 class="text-xl font-semibold text-minimal-primary">
 						{{ pageTitle }}
 					</h1>
 
 					<div class="flex items-center gap-3">
-						<UDropdown v-if="user" :items="userMenuItems" :popper="{ placement: 'bottom-end' }">
+						<UDropdown :items="userMenuItems" :popper="{ placement: 'bottom-end' }">
 							<UButton
-								color="gray"
+								color="blue"
 								variant="ghost"
 								:label="user.email"
 								trailing-icon="i-heroicons-chevron-down-20-solid"
-								size="sm"
 							/>
 						</UDropdown>
 
-						<UButton
-							color="red"
-							variant="outline"
-							icon="i-heroicons-arrow-right-on-rectangle"
-							size="sm"
-							@click="handleLogout"
-						>
-							Logout
-						</UButton>
+						<button class="btn-minimal-outline flex items-center gap-2 text-sm" @click="handleLogout">
+							<UIcon name="i-heroicons-arrow-right-on-rectangle" class="w-4 h-4" />
+							<span class="hidden sm:flex">Logout</span>
+						</button>
 					</div>
 				</div>
 			</header>
 
-			<main class="flex-1 overflow-y-auto p-6">
+			<main class="flex-1 overflow-y-auto bg-white">
 				<slot />
 			</main>
 		</div>

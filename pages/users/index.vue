@@ -2,75 +2,81 @@
 	<div class="space-y-6">
 		<div class="flex justify-between items-center">
 			<div>
-				<h1 class="text-2xl font-bold text-gray-900">Users</h1>
-				<p class="mt-1 text-sm text-gray-600">Manage user accounts and permissions</p>
+				<h1 class="text-2xl font-semibold text-minimal-primary">Users</h1>
+				<p class="mt-1 text-minimal-secondary">Manage user accounts and permissions</p>
 			</div>
 
-			<UButton icon="i-heroicons-user-plus" size="lg" @click="navigateTo('/users/new')"> Add User </UButton>
+			<button class="btn-minimal flex items-center gap-2" @click="navigateTo('/users/new')">
+				<UIcon name="i-heroicons-user-plus" class="w-4 h-4" />
+				Add User
+			</button>
 		</div>
 
-		<UCard>
-			<template #header>
-				<div class="flex justify-between items-center">
-					<h3 class="text-lg font-medium">All Users</h3>
+		<div class="minimal-card">
+			<div class="flex justify-between items-center mb-6">
+				<h3 class="text-lg font-medium text-minimal-primary">All Users</h3>
 
-					<UInput
-						v-model="search"
-						icon="i-heroicons-magnifying-glass"
-						placeholder="Search users..."
-						class="w-64"
+				<div class="relative">
+					<UIcon
+						name="i-heroicons-magnifying-glass"
+						class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-minimal-muted"
 					/>
+					<input v-model="search" placeholder="Search users..." class="input-minimal pl-10 w-64" />
 				</div>
-			</template>
+			</div>
 
-			<UTable
-				v-model="selected"
-				:rows="filteredUsers"
-				:columns="columns"
-				:loading="loading"
-				:empty-state="{
-					icon: 'i-heroicons-users',
-					label: 'No users found',
-					description: 'Get started by creating your first user account.',
-				}"
-				@select="onSelect"
-			>
-				<template #email-data="{ row }">
-					<div>
-						<div class="font-medium text-gray-900">{{ row.email }}</div>
-						<div v-if="row.name" class="text-sm text-gray-500">{{ row.name }}</div>
-					</div>
-				</template>
+			<div class="table-minimal">
+				<UTable
+					v-model="selected"
+					:rows="filteredUsers"
+					:columns="columns"
+					:loading="loading"
+					:empty-state="{
+						icon: 'i-heroicons-users',
+						label: 'No users found',
+						description: 'Get started by creating your first user account.',
+					}"
+					@select="onSelect"
+				>
+					<template #email-data="{ row }">
+						<div>
+							<div class="font-medium text-gray-900">{{ row.email }}</div>
+							<div v-if="row.name" class="text-sm text-gray-500">{{ row.name }}</div>
+						</div>
+					</template>
 
-				<template #groups-data="{ row }">
-					<!-- TODO: Fetch and display user groups -->
-					<UBadge color="blue" variant="soft"> {{ Math.floor(Math.random() * 3) + 1 }} groups </UBadge>
-				</template>
+					<template #groups-data="{ row }">
+						<!-- TODO: Fetch and display user groups -->
+						<UBadge color="blue" variant="soft"> {{ Math.floor(Math.random() * 3) + 1 }} groups </UBadge>
+					</template>
 
-				<template #createdAt-data="{ row }">
-					<span class="text-sm text-gray-500">
-						{{ new Date(row.createdAt).toLocaleDateString() }}
-					</span>
-				</template>
+					<template #createdAt-data="{ row }">
+						<span class="text-sm text-gray-500">
+							{{ new Date(row.createdAt).toLocaleDateString() }}
+						</span>
+					</template>
 
-				<template #actions-data="{ row }">
-					<UDropdown :items="getRowActions(row)" :popper="{ placement: 'bottom-end' }">
-						<UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal" />
-					</UDropdown>
-				</template>
-			</UTable>
+					<template #actions-data="{ row }">
+						<UDropdown :items="getRowActions(row)" :popper="{ placement: 'bottom-end' }">
+							<UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal" />
+						</UDropdown>
+					</template>
+				</UTable>
 
-			<!-- Bulk actions -->
-			<div v-if="selected.length > 0" class="mt-4 p-4 bg-blue-50 rounded-lg">
-				<div class="flex items-center justify-between">
-					<span class="text-sm font-medium text-blue-800"> {{ selected.length }} user(s) selected </span>
+				<!-- Bulk actions -->
+				<div v-if="selected.length > 0" class="mt-4 p-4 bg-blue-50 rounded-lg">
+					<div class="flex items-center justify-between">
+						<span class="text-sm font-medium text-blue-800"> {{ selected.length }} user(s) selected </span>
 
-					<div class="flex gap-2">
-						<UButton color="red" variant="outline" size="sm" @click="bulkDelete"> Delete Selected </UButton>
+						<div class="flex gap-2">
+							<UButton color="red" variant="outline" size="sm" @click="bulkDelete">
+								Delete Selected
+							</UButton>
+						</div>
 					</div>
 				</div>
 			</div>
-		</UCard>
+		</div>
 
 		<!-- Delete Confirmation Modal -->
 		<UModal v-model="deleteModalOpen">
@@ -101,6 +107,8 @@
 </template>
 
 <script setup lang="ts">
+import { navigateTo } from 'nuxt/app'
+import { computed, onMounted, ref } from 'vue'
 import type { User } from '~/types'
 
 // Add auth middleware
