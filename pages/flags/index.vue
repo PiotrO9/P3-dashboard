@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { navigateTo } from 'nuxt/app'
+import { onMounted, ref } from 'vue'
 import { z } from 'zod'
 import type { FeatureFlag } from '~/types'
 
@@ -245,7 +246,7 @@ onMounted(() => {
 
 <template>
 	<div class="space-y-6">
-		<div class="flex justify-between items-center">
+		<div class="flex justify-between items-center p-6 pb-0">
 			<div>
 				<h1 class="text-2xl font-semibold text-minimal-primary">Feature Flags</h1>
 				<p class="mt-1 text-minimal-secondary">Manage and toggle your feature flags</p>

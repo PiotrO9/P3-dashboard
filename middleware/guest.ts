@@ -1,20 +1,17 @@
 import { defineNuxtRouteMiddleware, navigateTo, useCookie } from 'nuxt/app'
 
 export default defineNuxtRouteMiddleware(to => {
-	// Access auth state directly from cookies/storage
+	// Access auth state directly from cookies
 	const userCookie = useCookie<any>('auth.user')
 	const tokenCookie = useCookie<string>('auth.token')
 
 	// Check if user is authenticated
 	const isAuthenticated = !!(userCookie.value && tokenCookie.value && userCookie.value.id)
 
-	if (!isAuthenticated) {
-		// Store the intended destination to redirect back after login
-		const redirectTo = to.fullPath !== '/login' ? to.fullPath : '/dashboard'
+	if (isAuthenticated) {
+		// Check if there's a redirect query parameter
+		const redirectTo = (to.query.redirect as string) || '/dashboard'
 
-		return navigateTo({
-			path: '/login',
-			query: { redirect: redirectTo },
-		})
+		return navigateTo(redirectTo)
 	}
 })

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { navigateTo, useRoute } from 'nuxt/app'
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
+import { useAuth } from '../composables/useAuth'
 
 const { user, logout } = useAuth()
 const route = useRoute()
@@ -35,10 +36,8 @@ const handleLogout = async () => {
 	}
 }
 
-onMounted(() => {
-	const { initializeAuth } = useAuth()
-	initializeAuth()
-})
+// Auth is now automatically initialized through cookies and composables
+// No manual initialization needed
 </script>
 
 <template>
@@ -55,7 +54,7 @@ onMounted(() => {
 							<UButton
 								color="blue"
 								variant="ghost"
-								:label="user.email"
+								:label="user?.email"
 								trailing-icon="i-heroicons-chevron-down-20-solid"
 							/>
 						</UDropdown>

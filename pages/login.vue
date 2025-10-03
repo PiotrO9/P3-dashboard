@@ -1,3 +1,60 @@
+<script setup lang="ts">
+import type { FormSubmitEvent } from '#ui/types'
+import { useRoute, useRouter } from 'nuxt/app'
+import { reactive, ref } from 'vue'
+import { z } from 'zod'
+import { useAuth } from '../composables/useAuth'
+
+// Disable default layout for login page and add guest middleware
+definePageMeta({
+	layout: false,
+	middleware: 'guest',
+})
+
+const { login } = useAuth()
+const router = useRouter()
+
+// Form state and validation
+const schema = z.object({
+	email: z.string().email('Invalid email'),
+	password: z.string().min(6, 'Password must be at least 6 characters'),
+})
+
+type Schema = z.output<typeof schema>
+
+const state = reactive({
+	email: '',
+	password: '',
+})
+
+const loading = ref(false)
+const error = ref<string | null>(null)
+
+async function onSubmit(event: FormSubmitEvent<Schema>) {
+	loading.value = true
+	error.value = null
+
+	try {
+		const response = await login({
+			email: event.data.email,
+			password: event.data.password,
+		})
+
+		if (response) {
+			const route = useRoute()
+			const redirectTo = (route.query.redirect as string) || '/dashboard'
+
+			await router.push(redirectTo)
+		}
+	} catch (err: any) {
+		error.value = err.message || 'Login failed. Please try again.'
+		console.error('Login error:', err)
+	} finally {
+		loading.value = false
+	}
+}
+</script>
+
 <template>
 	<div class="login-minimal flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 		<div class="max-w-md w-full space-y-8">
@@ -47,15 +104,6 @@
 						</div>
 					</div>
 
-					<div class="flex items-center justify-between">
-						<label class="flex items-center">
-							<input v-model="state.remember" type="checkbox" class="rounded border-gray-300 mr-2" />
-							<span class="text-sm text-minimal-secondary">Remember me</span>
-						</label>
-
-						<a href="#" class="text-sm" style="color: var(--accent-primary)"> Forgot your password? </a>
-					</div>
-
 					<button type="submit" :disabled="loading" class="btn-minimal w-full py-3 text-base font-medium">
 						{{ loading ? 'Signing in...' : 'Sign in' }}
 					</button>
@@ -83,74 +131,3 @@
 		</div>
 	</div>
 </template>
-
-<script setup lang="ts">
-import type { FormSubmitEvent } from '#ui/types'
-import { z } from 'zod'
-
-// Disable default layout for login page
-definePageMeta({
-	layout: false,
-})
-
-const { login } = useAuth()
-const router = useRouter()
-
-// Form state and validation
-const schema = z.object({
-	email: z.string().email('Invalid email'),
-	password: z.string().min(6, 'Password must be at least 6 characters'),
-})
-
-type Schema = z.output<typeof schema>
-
-const state = reactive({
-	email: '',
-	password: '',
-	remember: false,
-})
-
-const loading = ref(false)
-const error = ref<string | null>(null)
-
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-	loading.value = true
-	error.value = null
-
-	try {
-		const response = await login({
-			email: event.data.email,
-			password: event.data.password,
-		})
-
-		if (response.success) {
-			// TODO: Show success message
-			await router.push('/dashboard')
-		}
-	} catch (err: any) {
-		error.value = err.message || 'Login failed. Please try again.'
-		console.error('Login error:', err)
-	} finally {
-		loading.value = false
-	}
-}
-
-// Initialize auth and redirect if already authenticated
-const { isAuthenticated, initializeAuth } = useAuth()
-
-// Initialize auth on client side
-onMounted(() => {
-	initializeAuth()
-})
-
-// Watch for authentication changes and redirect
-watch(
-	isAuthenticated,
-	newValue => {
-		if (newValue) {
-			router.push('/dashboard')
-		}
-	},
-	{ immediate: true }
-)
-</script>

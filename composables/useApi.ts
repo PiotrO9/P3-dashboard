@@ -1,8 +1,13 @@
-import type { ApiResponse, EvaluateRequest, FeatureFlag, Group, LoginCredentials, Rule, User } from '~/types'
+import { createError, useCookie, useRuntimeConfig } from 'nuxt/app'
+import { computed } from 'vue'
+import type { ApiResponse, EvaluateRequest, FeatureFlag, Group, LoginCredentials, Rule, User } from '../types'
 
 export const useApi = () => {
 	const config = useRuntimeConfig()
-	const { token } = useAuth()
+
+	// Access token directly from cookie to avoid circular dependency
+	const tokenCookie = useCookie<string>('auth.token')
+	const token = computed(() => tokenCookie.value)
 
 	const apiCall = async <T>(
 		endpoint: string,
