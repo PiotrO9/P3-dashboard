@@ -165,11 +165,22 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 	}
 }
 
-// Redirect if already authenticated
-const { isAuthenticated } = useAuth()
+// Initialize auth and redirect if already authenticated
+const { isAuthenticated, initializeAuth } = useAuth()
+
+// Initialize auth on client side
 onMounted(() => {
-	if (isAuthenticated.value) {
-		router.push('/dashboard')
-	}
+	initializeAuth()
 })
+
+// Watch for authentication changes and redirect
+watch(
+	isAuthenticated,
+	newValue => {
+		if (newValue) {
+			router.push('/dashboard')
+		}
+	},
+	{ immediate: true }
+)
 </script>

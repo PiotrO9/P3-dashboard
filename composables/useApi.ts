@@ -1,4 +1,4 @@
-import type { ApiResponse, FeatureFlag, Rule, User, Group, LoginCredentials, EvaluateRequest } from '~/types'
+import type { ApiResponse, EvaluateRequest, FeatureFlag, Group, LoginCredentials, Rule, User } from '~/types'
 
 export const useApi = () => {
 	const config = useRuntimeConfig()
@@ -24,13 +24,22 @@ export const useApi = () => {
 		}
 
 		try {
-			const response = await $fetch<ApiResponse<T>>(`${config.public.apiBase}${endpoint}`, {
+			const response = await $fetch<any>(`${config.public.apiBase}${endpoint}`, {
 				method,
 				headers,
 				body: body ? JSON.stringify(body) : undefined,
 			})
 
-			return response
+			// Check if response is in ApiResponse format or direct data
+			if (response && typeof response === 'object' && 'success' in response && 'data' in response) {
+				return response as ApiResponse<T>
+			} else {
+				// Wrap direct response in ApiResponse format
+				return {
+					success: true,
+					data: response as T,
+				} as ApiResponse<T>
+			}
 		} catch (error: any) {
 			console.error('API Error:', error)
 			throw createError({

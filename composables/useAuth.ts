@@ -1,4 +1,4 @@
-import type { User, AuthState, LoginCredentials } from '~/types'
+import type { LoginCredentials, User } from '~/types'
 
 export const useAuth = () => {
 	const user = useState<User | null>('auth.user', () => null)
