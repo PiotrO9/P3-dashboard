@@ -45,6 +45,16 @@ export function useApi() {
 			}
 			return res as any
 		},
+		getById: async function (id: string) {
+			const res = await apiCall<any>(`/flags/${id}`)
+			if (res.success) {
+				return {
+					success: true,
+					data: { ...res.data, enabled: res.data.enabled ?? res.data.isEnabled ?? false },
+				} as ApiResponse<FeatureFlag>
+			}
+			return res as any
+		},
 		create: async function (flag: Partial<FeatureFlag> & { isEnabled?: boolean }) {
 			const res = await apiCall<any>('/flags', { method: 'POST', body: flag })
 			if (res.success) {
