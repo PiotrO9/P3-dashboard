@@ -76,6 +76,16 @@ export function useApi() {
 			return res as any
 		},
 		toggle: async function (id: string) {
+			// Prefer internal endpoint which handles external fallback logic
+			try {
+				const internal = await $fetch<any>(`/api/flags/${id}/toggle`, { method: 'PATCH' })
+				if (internal?.success) {
+					const d = internal.data || internal.flag || internal
+					return { success: true, data: { ...d, enabled: d.enabled ?? d.isEnabled ?? false } }
+				}
+			} catch (_) {
+				// Ignore and attempt legacy proxied toggle
+			}
 			const res = await apiCall<any>(`/flags/${id}/toggle`, { method: 'PATCH' })
 			if (res.success) {
 				return {

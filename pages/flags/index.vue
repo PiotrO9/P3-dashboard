@@ -122,8 +122,8 @@ async function toggleFlag(flag: FeatureFlag) {
 				return f.id === flag.id
 			})
 			if (index !== -1) {
-				// Preserve the same reactive object reference so table & selection don't lose DOM anchors
-				Object.assign(flagsList.value[index], response.data)
+				// Aktualizuj tylko pole 'enabled' aby nie nadpisywać nazwy/klucza minimalną odpowiedzią z endpointu toggle
+				flagsList.value[index].enabled = response.data.enabled
 			}
 
 			toast.add({
