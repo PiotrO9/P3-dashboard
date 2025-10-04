@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { navigateTo } from 'nuxt/app'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { z } from 'zod'
-import type { FeatureFlag } from '~/types'
+import type { FeatureFlag } from '../../types'
+
+declare const definePageMeta: any
+declare function useApi(): any
+declare function useToast(): any
 
 definePageMeta({
 	middleware: 'auth',
@@ -14,7 +18,6 @@ const toast = useToast()
 const flagsList = ref<FeatureFlag[]>([])
 const loading = ref(true)
 const toggleLoading = ref<Record<string, boolean>>({})
-// Row selection removed – no multi-select state needed
 
 const search = ref('')
 const statusFilter = ref('')
@@ -122,8 +125,7 @@ async function toggleFlag(flag: FeatureFlag) {
 				return f.id === flag.id
 			})
 			if (index !== -1) {
-				// Aktualizuj tylko pole 'enabled' aby nie nadpisywać nazwy/klucza minimalną odpowiedzią z endpointu toggle
-				flagsList.value[index].enabled = response.data.enabled
+				Object.assign(flagsList.value[index], response.data)
 			}
 
 			toast.add({
@@ -144,8 +146,6 @@ async function toggleFlag(flag: FeatureFlag) {
 		toggleLoading.value[flag.id] = false
 	}
 }
-
-// bulkToggle & selection removed
 
 function showRules(flag: FeatureFlag) {
 	selectedFlag.value = flag
@@ -198,6 +198,30 @@ async function deleteRule(flagId: string, ruleId: string) {
 	}
 }
 
+async function deleteFlag(flag: FeatureFlag) {
+	const previous = [...flagsList.value]
+	flagsList.value = flagsList.value.filter(function (f: FeatureFlag) {
+		return f.id !== flag.id
+	})
+
+	try {
+		const response = await flags.deleteFlag(flag.id)
+		if (!response?.success) throw new Error(response?.message || 'Deletion failed')
+		toast.add({
+			title: 'Flag deleted',
+			description: `"${flag.name}" has been removed`,
+			color: 'green',
+		})
+	} catch (error: any) {
+		flagsList.value = previous
+		toast.add({
+			title: 'Error deleting flag',
+			description: error.message,
+			color: 'red',
+		})
+	}
+}
+
 function getRowActions(flag: FeatureFlag) {
 	return [
 		[
@@ -214,14 +238,12 @@ function getRowActions(flag: FeatureFlag) {
 				label: 'Delete',
 				icon: 'i-heroicons-trash',
 				click: function () {
-					console.log('Delete flag:', flag.id)
+					deleteFlag(flag)
 				},
 			},
 		],
 	]
 }
-
-// onSelect removed – table no longer exposes selection
 
 onMounted(function () {
 	loadFlags()
@@ -243,10 +265,10 @@ onMounted(function () {
 		</div>
 
 		<div class="minimal-card">
-			<div class="flex justify-between items-center mb-6">
+			<div class="flex justify-between items-center mb-6 gap-4 flex-wrap">
 				<h3 class="text-lg font-medium text-minimal-primary">All Flags</h3>
 
-				<div class="flex gap-3">
+				<div class="flex gap-3 flex-wrap">
 					<div class="relative">
 						<UIcon
 							name="i-heroicons-magnifying-glass"

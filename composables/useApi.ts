@@ -35,7 +35,6 @@ export function useApi() {
 		getAll: async function () {
 			const res = await apiCall<any[]>('/flags')
 			if (res.success) {
-				// Map backend isEnabled -> enabled for UI consistency
 				return {
 					success: true,
 					data: res.data.map(function (f: any) {
@@ -76,16 +75,13 @@ export function useApi() {
 			return res as any
 		},
 		toggle: async function (id: string) {
-			// Prefer internal endpoint which handles external fallback logic
 			try {
 				const internal = await $fetch<any>(`/api/flags/${id}/toggle`, { method: 'PATCH' })
 				if (internal?.success) {
 					const d = internal.data || internal.flag || internal
 					return { success: true, data: { ...d, enabled: d.enabled ?? d.isEnabled ?? false } }
 				}
-			} catch (_) {
-				// Ignore and attempt legacy proxied toggle
-			}
+			} catch (_) {}
 			const res = await apiCall<any>(`/flags/${id}/toggle`, { method: 'PATCH' })
 			if (res.success) {
 				return {
@@ -95,14 +91,12 @@ export function useApi() {
 			}
 			return res as any
 		},
-		// Legacy simple rules API (still routed through proxy)
 		addRule: function (id: string, rule: Partial<Rule>) {
 			return apiCall<Rule>(`/flags/${id}/rules`, { method: 'POST', body: rule })
 		},
 		deleteRule: function (flagId: string, ruleId: string) {
 			return apiCall(`/flags/${flagId}/rules`, { method: 'DELETE', body: { ruleId } })
 		},
-		// Advanced rules (direct internal API)
 		getAdvancedRules: async function (flagId: string) {
 			return $fetch<{ success: boolean; rules: any[] }>(`/api/flags/${flagId}/rules`)
 		},
@@ -114,6 +108,13 @@ export function useApi() {
 		},
 		deleteAdvancedRule: async function (ruleId: string) {
 			return $fetch<{ success: boolean }>(`/api/flags/rules/${ruleId}`, { method: 'DELETE' })
+		},
+		deleteFlag: async function (flagId: string) {
+			try {
+				const internal = await $fetch<any>(`/api/flags/${flagId}`, { method: 'DELETE' })
+				if (internal?.success) return internal
+			} catch (_) {}
+			return apiCall(`/flags/${flagId}/rules`, { method: 'DELETE' })
 		},
 		evaluateAdvanced: async function (payload: { flagId?: string; key?: string; context?: Record<string, any> }) {
 			return $fetch<{ success: boolean; result: { matched: boolean; value: any } }>(`/api/flags/evaluate`, {
