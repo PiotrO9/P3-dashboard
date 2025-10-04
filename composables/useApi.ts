@@ -2,7 +2,6 @@ import { createError } from 'nuxt/app'
 import type { ApiResponse, EvaluateRequest, FeatureFlag, Group, LoginCredentials, Rule, User } from '../types'
 
 export const useApi = () => {
-	// Internal helper hitting server proxy which supplies Authorization from httpOnly cookie
 	const apiCall = async <T>(
 		endpoint: string,
 		options: {
@@ -21,9 +20,8 @@ export const useApi = () => {
 
 			if (response && typeof response === 'object' && 'success' in response && 'data' in response) {
 				return response as ApiResponse<T>
-			} else {
-				return { success: true, data: response as T } as ApiResponse<T>
 			}
+			return { success: true, data: response as T } as ApiResponse<T>
 		} catch (error: any) {
 			console.error('API Error:', error)
 			throw createError({

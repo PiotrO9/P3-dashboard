@@ -1,6 +1,5 @@
 <template>
 	<div class="max-w-4xl mx-auto space-y-8 p-6">
-		<!-- Header -->
 		<div class="flex items-center justify-between">
 			<div>
 				<h1 class="text-2xl font-semibold text-minimal-primary">Create New Feature Flag</h1>
@@ -12,14 +11,11 @@
 			</button>
 		</div>
 
-		<!-- Card -->
 		<div class="minimal-card p-6">
 			<form @submit.prevent="createFlag" class="space-y-8">
-				<!-- Basic Information -->
 				<section class="space-y-6">
 					<h3 class="text-lg font-medium text-minimal-primary">Basic Information</h3>
 
-					<!-- Flag Name -->
 					<div class="space-y-2">
 						<label class="text-sm font-medium text-minimal-primary"
 							>Flag Name <span class="text-red-500">*</span></label
@@ -33,7 +29,6 @@
 						/>
 					</div>
 
-					<!-- Flag Key -->
 					<div class="space-y-2">
 						<label class="text-sm font-medium text-minimal-primary"
 							>Flag Key <span class="text-red-500">*</span></label
@@ -49,7 +44,6 @@
 						</p>
 					</div>
 
-					<!-- Description -->
 					<div class="space-y-2">
 						<label class="text-sm font-medium text-minimal-primary">Description</label>
 						<textarea
@@ -60,7 +54,6 @@
 						></textarea>
 					</div>
 
-					<!-- Flag Type -->
 					<div class="space-y-2">
 						<label class="text-sm font-medium text-minimal-primary">Flag Type</label>
 						<select v-model="flagState.type" class="input-minimal w-full">
@@ -70,7 +63,6 @@
 						</select>
 					</div>
 
-					<!-- Rollout Percentage -->
 					<div v-if="flagState.type === 'PERCENTAGE'" class="space-y-2">
 						<label class="text-sm font-medium text-minimal-primary">Rollout Percentage</label>
 						<input
@@ -83,7 +75,6 @@
 						/>
 					</div>
 
-					<!-- Config JSON -->
 					<div v-if="flagState.type === 'CONFIG'" class="space-y-2">
 						<label class="text-sm font-medium text-minimal-primary">Config JSON</label>
 						<textarea
@@ -95,7 +86,6 @@
 					</div>
 				</section>
 
-				<!-- Status -->
 				<section class="space-y-6">
 					<h3 class="text-lg font-medium text-minimal-primary">Status</h3>
 					<div class="space-y-2">
@@ -129,7 +119,6 @@
 					</div>
 				</section>
 
-				<!-- Rules -->
 				<section class="space-y-6">
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-medium text-minimal-primary">Rules (Optional)</h3>
@@ -176,7 +165,6 @@
 								</button>
 							</div>
 
-							<!-- Condition -->
 							<div class="space-y-2">
 								<label class="text-sm font-medium text-minimal-primary"
 									>Condition {{ index + 1 }}</label
@@ -189,7 +177,6 @@
 								/>
 							</div>
 
-							<!-- Value -->
 							<div class="space-y-2">
 								<label class="text-sm font-medium text-minimal-primary">Value {{ index + 1 }}</label>
 								<button
@@ -230,7 +217,6 @@
 					</div>
 				</section>
 
-				<!-- Actions -->
 				<div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
 					<button type="button" class="btn-minimal-ghost" @click="navigateTo('/flags')" :disabled="creating">
 						Cancel
@@ -297,7 +283,6 @@ const createFlag = async () => {
 			isEnabled: flagState.isEnabled,
 			...(flagState.type === 'PERCENTAGE' ? { rolloutPercentage: flagState.rolloutPercentage || 0 } : {}),
 			...(flagState.type === 'CONFIG' ? { configJson: JSON.parse(flagState.configJsonText || '{}') } : {}),
-			// Możesz tu dołożyć też rules jeśli backend ich oczekuje
 			rules: showRules.value && flagState.rules.length > 0 ? flagState.rules : undefined,
 		}
 

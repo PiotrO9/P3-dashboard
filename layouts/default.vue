@@ -35,9 +35,6 @@ const handleLogout = async () => {
 		console.error('Logout error:', error)
 	}
 }
-
-// Auth is now automatically initialized through cookies and composables
-// No manual initialization needed
 </script>
 
 <template>

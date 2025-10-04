@@ -1,12 +1,10 @@
 <template>
 	<div class="max-w-4xl mx-auto space-y-6 p-6">
-		<!-- Header -->
 		<div>
 			<h1 class="text-2xl font-semibold text-minimal-primary">User Profile</h1>
 			<p class="mt-1 text-minimal-secondary">Manage your account settings and personal information</p>
 		</div>
 
-		<!-- Profile Information Card -->
 		<div class="minimal-card">
 			<div class="flex items-start justify-between mb-6 gap-4 flex-wrap">
 				<h2 class="text-lg font-medium text-minimal-primary">Personal Information</h2>
@@ -16,7 +14,6 @@
 			</div>
 
 			<form @submit.prevent="saveProfile" class="space-y-6">
-				<!-- Avatar Section -->
 				<div class="flex items-center space-x-6 flex-wrap gap-4">
 					<div>
 						<div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
@@ -37,7 +34,6 @@
 				</div>
 
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-					<!-- Full Name -->
 					<div class="space-y-2">
 						<label class="text-sm font-medium text-minimal-primary">Full Name</label>
 						<input
@@ -50,7 +46,6 @@
 						/>
 					</div>
 
-					<!-- Email -->
 					<div class="space-y-2">
 						<label class="text-sm font-medium text-minimal-primary">Email Address</label>
 						<input
@@ -63,7 +58,6 @@
 						/>
 					</div>
 
-					<!-- Phone -->
 					<div class="space-y-2">
 						<label class="text-sm font-medium text-minimal-primary">Phone Number</label>
 						<input
@@ -76,7 +70,6 @@
 						/>
 					</div>
 
-					<!-- Department -->
 					<div class="space-y-2">
 						<label class="text-sm font-medium text-minimal-primary">Department</label>
 						<select
@@ -95,7 +88,6 @@
 						</select>
 					</div>
 
-					<!-- Role -->
 					<div class="space-y-2">
 						<label class="text-sm font-medium text-minimal-primary">Role</label>
 						<input
@@ -108,7 +100,6 @@
 						/>
 					</div>
 
-					<!-- Location -->
 					<div class="space-y-2">
 						<label class="text-sm font-medium text-minimal-primary">Location</label>
 						<input
@@ -122,7 +113,6 @@
 					</div>
 				</div>
 
-				<!-- Bio -->
 				<div class="space-y-2">
 					<label class="text-sm font-medium text-minimal-primary">Bio</label>
 					<textarea
@@ -135,7 +125,6 @@
 					></textarea>
 				</div>
 
-				<!-- Action Buttons -->
 				<div v-if="isEditing" class="flex justify-end space-x-3">
 					<button type="button" class="btn-minimal-ghost" @click="cancelEdit">Cancel</button>
 					<button type="submit" class="btn-minimal" :disabled="saving">
@@ -145,12 +134,10 @@
 			</form>
 		</div>
 
-		<!-- Account Security Card -->
 		<div class="minimal-card">
 			<h2 class="text-lg font-medium text-minimal-primary mb-6">Account Security</h2>
 
 			<div class="space-y-4">
-				<!-- Password -->
 				<div
 					class="flex items-center justify-between p-4 border rounded-lg"
 					style="border-color: var(--border-light)"
@@ -162,7 +149,6 @@
 					<button class="btn-minimal-outline text-sm">Change Password</button>
 				</div>
 
-				<!-- Login Sessions -->
 				<div
 					class="flex items-center justify-between p-4 border rounded-lg"
 					style="border-color: var(--border-light)"
@@ -176,12 +162,10 @@
 			</div>
 		</div>
 
-		<!-- Preferences Card -->
 		<div class="minimal-card">
 			<h2 class="text-lg font-medium text-minimal-primary mb-6">Preferences</h2>
 
 			<div class="space-y-4">
-				<!-- Language -->
 				<div class="flex items-center justify-between">
 					<div>
 						<h3 class="text-minimal-primary font-medium">Language</h3>
@@ -195,7 +179,6 @@
 					</select>
 				</div>
 
-				<!-- Timezone -->
 				<div class="flex items-center justify-between">
 					<div>
 						<h3 class="text-minimal-primary font-medium">Timezone</h3>
@@ -225,8 +208,6 @@ import { onMounted, reactive, ref } from 'vue'
 definePageMeta({
 	middleware: 'auth',
 })
-
-// Reactive data
 const isEditing = ref(false)
 const saving = ref(false)
 const savingPreferences = ref(false)
@@ -250,19 +231,14 @@ const preferences = reactive({
 	timezone: 'Europe/Warsaw',
 })
 
-// Methods
 const toggleEditMode = () => {
 	if (isEditing.value) {
 		cancelEdit()
-	} else {
-		// Store original data for cancel functionality
 		Object.assign(originalProfileData, profileData)
-		isEditing.value = true
 	}
 }
 
 const cancelEdit = () => {
-	// Restore original data
 	Object.assign(profileData, originalProfileData)
 	isEditing.value = false
 }
@@ -270,17 +246,10 @@ const cancelEdit = () => {
 const saveProfile = async () => {
 	saving.value = true
 	try {
-		// Simulate API call
 		await new Promise(resolve => setTimeout(resolve, 1000))
-
-		// Update original data
 		Object.assign(originalProfileData, profileData)
 		isEditing.value = false
-
-		// Show success message (you can integrate with your toast system)
-		console.log('Profile updated successfully')
 	} catch (error) {
-		console.error('Failed to update profile:', error)
 	} finally {
 		saving.value = false
 	}
@@ -291,9 +260,7 @@ const savePreferences = async () => {
 	try {
 		// Simulate API call
 		await new Promise(resolve => setTimeout(resolve, 1000))
-
 		// Show success message
-		console.log('Preferences saved successfully')
 	} catch (error) {
 		console.error('Failed to save preferences:', error)
 	} finally {
@@ -304,14 +271,12 @@ const savePreferences = async () => {
 const loadUserProfile = async () => {
 	try {
 		// Simulate loading user data - replace with actual API call
-		const { user } = useAuth()
 
 		// Mock data - replace with actual user data
 		Object.assign(profileData, {
 			fullName: user.value?.name || 'John Doe',
 			email: user.value?.email || 'john@example.com',
 			phone: '+1 (555) 123-4567',
-			department: 'engineering',
 			role: 'Senior Developer',
 			location: 'Warsaw, Poland',
 			bio: 'Passionate developer with 5+ years of experience in web technologies.',

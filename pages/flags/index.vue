@@ -4,7 +4,6 @@ import { onMounted, ref } from 'vue'
 import { z } from 'zod'
 import type { FeatureFlag } from '~/types'
 
-// Add auth middleware
 definePageMeta({
 	middleware: 'auth',
 })
@@ -12,13 +11,11 @@ definePageMeta({
 const { flags } = useApi()
 const toast = useToast()
 
-// Data
 const flagsList = ref<FeatureFlag[]>([])
 const loading = ref(true)
 const toggleLoading = ref<Record<string, boolean>>({})
 const selected = ref<FeatureFlag[]>([])
 
-// Filters
 const search = ref('')
 const statusFilter = ref('')
 
@@ -28,7 +25,6 @@ const statusOptions = [
 	{ label: 'Disabled', value: 'disabled' },
 ]
 
-// Table configuration
 const columns = [
 	{
 		key: 'name',
@@ -56,7 +52,6 @@ const columns = [
 	},
 ]
 
-// Rules modal
 const rulesModalOpen = ref(false)
 const selectedFlag = ref<FeatureFlag | null>(null)
 
@@ -70,7 +65,6 @@ const ruleState = reactive({
 	value: true,
 })
 
-// Computed
 const filteredFlags = computed(() => {
 	let filtered = flagsList.value
 
@@ -95,7 +89,6 @@ const filteredFlags = computed(() => {
 	return filtered
 })
 
-// Methods
 const loadFlags = async () => {
 	try {
 		loading.value = true
@@ -124,7 +117,6 @@ const toggleFlag = async (flag: FeatureFlag) => {
 		const response = await flags.toggle(flag.id)
 
 		if (response.success) {
-			// Update local state
 			const index = flagsList.value.findIndex(f => f.id === flag.id)
 			if (index !== -1) {
 				flagsList.value[index] = response.data
@@ -137,7 +129,6 @@ const toggleFlag = async (flag: FeatureFlag) => {
 			})
 		}
 	} catch (error: any) {
-		// Revert the toggle if it failed
 		flag.enabled = !flag.enabled
 
 		toast.add({
@@ -150,10 +141,7 @@ const toggleFlag = async (flag: FeatureFlag) => {
 	}
 }
 
-const bulkToggle = async (enabled: boolean) => {
-	// TODO: Implement bulk operations
-	console.log('Bulk toggle:', enabled, selected.value)
-}
+const bulkToggle = async (enabled: boolean) => console.log('Bulk toggle:', enabled, selected.value)
 
 const showRules = (flag: FeatureFlag) => {
 	selectedFlag.value = flag
@@ -167,10 +155,7 @@ const addRule = async () => {
 		const response = await flags.addRule(selectedFlag.value.id, ruleState)
 
 		if (response.success) {
-			// Refresh the flag data
 			await loadFlags()
-
-			// Reset form
 			ruleState.condition = ''
 			ruleState.value = true
 
@@ -193,7 +178,6 @@ const deleteRule = async (flagId: string, ruleId: string) => {
 	try {
 		await flags.deleteRule(flagId, ruleId)
 
-		// Refresh the flag data
 		await loadFlags()
 
 		toast.add({
@@ -238,7 +222,6 @@ const onSelect = (row: FeatureFlag[]) => {
 	selected.value = row
 }
 
-// Initialize
 onMounted(() => {
 	loadFlags()
 })
@@ -294,7 +277,6 @@ onMounted(() => {
 					class="w-full"
 					@select="onSelect"
 				>
-					<!-- Custom column slots -->
 					<template #name-data="{ row }">
 						<div>
 							<div class="font-medium text-gray-900">{{ row.name }}</div>
@@ -347,7 +329,6 @@ onMounted(() => {
 					</template>
 				</UTable>
 
-				<!-- Bulk actions -->
 				<div v-if="selected.length > 0" class="mt-4 p-4 bg-blue-50 rounded-lg">
 					<div class="flex items-center justify-between">
 						<span class="text-sm font-medium text-blue-800"> {{ selected.length }} flag(s) selected </span>
@@ -365,7 +346,6 @@ onMounted(() => {
 				</div>
 			</div>
 
-			<!-- Rules Modal -->
 			<UModal v-model="rulesModalOpen" :ui="{ width: 'sm:max-w-2xl' }">
 				<UCard>
 					<template #header>
@@ -381,7 +361,6 @@ onMounted(() => {
 					</template>
 
 					<div class="space-y-4">
-						<!-- Rules list -->
 						<div v-if="selectedFlag?.rules?.length" class="space-y-2">
 							<div
 								v-for="rule in selectedFlag.rules"
@@ -409,7 +388,6 @@ onMounted(() => {
 
 						<div v-else class="text-center py-8 text-gray-500">No rules configured for this flag</div>
 
-						<!-- Add rule form -->
 						<UForm :schema="ruleSchema" :state="ruleState" @submit="addRule">
 							<div class="grid grid-cols-2 gap-4">
 								<UFormGroup label="Condition" name="condition">

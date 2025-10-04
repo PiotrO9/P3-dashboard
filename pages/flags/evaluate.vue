@@ -6,7 +6,6 @@
 		</div>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-			<!-- Evaluation Form -->
 			<div class="minimal-card">
 				<h3 class="text-lg font-medium text-minimal-primary mb-4">Evaluation Input</h3>
 
@@ -29,7 +28,6 @@
 				</UForm>
 			</div>
 
-			<!-- Results -->
 			<UCard>
 				<template #header>
 					<h3 class="text-lg font-medium">Evaluation Result</h3>
@@ -41,7 +39,6 @@
 				</div>
 
 				<div v-else class="space-y-4">
-					<!-- Result Badge -->
 					<div class="text-center">
 						<UBadge
 							:color="lastResult?.result ? 'green' : 'red'"
@@ -57,7 +54,6 @@
 						</UBadge>
 					</div>
 
-					<!-- Evaluation Details -->
 					<div class="space-y-3">
 						<div>
 							<label class="text-sm font-medium text-gray-700">Flag Key</label>
@@ -81,7 +77,6 @@
 						</div>
 					</div>
 
-					<!-- TODO: Show which rules matched -->
 					<UAlert
 						icon="i-heroicons-information-circle"
 						color="blue"
@@ -93,7 +88,6 @@
 			</UCard>
 		</div>
 
-		<!-- Recent Evaluations -->
 		<UCard v-if="evaluationHistory.length > 0">
 			<template #header>
 				<h3 class="text-lg font-medium">Recent Evaluations</h3>
@@ -124,7 +118,6 @@
 import { z } from 'zod'
 import type { EvaluateRequest } from '~/types'
 
-// Add auth middleware
 definePageMeta({
 	middleware: 'auth',
 })
@@ -132,12 +125,10 @@ definePageMeta({
 const { flags } = useApi()
 const toast = useToast()
 
-// Form schema
 const evaluationSchema = z.object({
 	flagKey: z.string().min(1, 'Flag key is required'),
 })
 
-// State
 const evaluationState = reactive({
 	flagKey: '',
 })
@@ -148,7 +139,6 @@ const hasEvaluated = ref(false)
 const lastResult = ref<{ result: boolean } | null>(null)
 const lastEvaluation = ref<EvaluateRequest>({ flagKey: '' })
 
-// History
 interface EvaluationHistoryItem {
 	flagKey: string
 	context?: Record<string, any>
@@ -177,12 +167,10 @@ const historyColumns = [
 	},
 ]
 
-// Methods
 const evaluateFlag = async () => {
 	try {
 		evaluating.value = true
 
-		// Parse context JSON
 		let context: Record<string, any> = {}
 		if (contextString.value.trim()) {
 			try {
@@ -192,13 +180,11 @@ const evaluateFlag = async () => {
 			}
 		}
 
-		// Prepare evaluation request
 		const request: EvaluateRequest = {
 			flagKey: evaluationState.flagKey,
 			context: Object.keys(context).length > 0 ? context : undefined,
 		}
 
-		// Call API
 		const response = await flags.evaluate(request)
 
 		if (response.success) {
@@ -206,7 +192,6 @@ const evaluateFlag = async () => {
 			lastEvaluation.value = request
 			hasEvaluated.value = true
 
-			// Add to history
 			evaluationHistory.value.unshift({
 				flagKey: request.flagKey,
 				context: request.context,
@@ -214,7 +199,6 @@ const evaluateFlag = async () => {
 				timestamp: new Date().toISOString(),
 			})
 
-			// Keep only last 10 evaluations
 			if (evaluationHistory.value.length > 10) {
 				evaluationHistory.value = evaluationHistory.value.slice(0, 10)
 			}
@@ -241,9 +225,7 @@ const rerunEvaluation = (item: EvaluationHistoryItem) => {
 	contextString.value = item.context ? JSON.stringify(item.context, null, 2) : '{}'
 }
 
-// Initialize with example data
 onMounted(() => {
-	// Set example values
 	evaluationState.flagKey = 'feature.new-dashboard'
 	contextString.value = JSON.stringify(
 		{

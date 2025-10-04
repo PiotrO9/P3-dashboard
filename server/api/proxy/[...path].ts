@@ -10,7 +10,6 @@ export default defineEventHandler(async event => {
 
 	const method = event.method || 'GET'
 
-	// Build request init
 	const headers: Record<string, string> = {
 		'Content-Type': 'application/json',
 	}

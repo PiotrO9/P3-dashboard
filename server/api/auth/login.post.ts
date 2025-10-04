@@ -22,16 +22,14 @@ export default defineEventHandler(async event => {
 			throw createError({ statusCode: 401, statusMessage: response?.message || 'Invalid credentials' })
 		}
 
-		// Set secure, httpOnly cookie (adjust secure based on environment)
 		setCookie(event, 'auth.token', response.token, {
 			httpOnly: true,
 			sameSite: 'lax',
 			secure: process.env.NODE_ENV === 'production',
 			path: '/',
-			maxAge: 60 * 60 * 24 * 7, // 7 days
+			maxAge: 60 * 60 * 24 * 7,
 		})
 
-		// Return only user (token stays httpOnly)
 		return {
 			success: true,
 			user: response.user,

@@ -9,7 +9,6 @@ definePageMeta({
 
 const { flags, users, groups } = useApi()
 
-// Data
 const stats = ref({
 	totalFlags: 0,
 	activeFlags: 0,
@@ -23,14 +22,12 @@ const stats = ref({
 const recentFlags = ref<FeatureFlag[]>([])
 const flagsLoading = ref(true)
 
-// Table configuration
 const flagColumns = [
 	{ key: 'name', label: 'Name & Key' },
 	{ key: 'status', label: 'Status' },
 	{ key: 'updatedAt', label: 'Last Updated' },
 ]
 
-// Methods
 const loadDashboardData = async () => {
 	try {
 		const [flagsResponse, usersResponse, groupsResponse] = await Promise.allSettled([
@@ -39,12 +36,11 @@ const loadDashboardData = async () => {
 			groups.getAll(),
 		])
 
-		// Process flags data
 		if (flagsResponse.status === 'fulfilled' && flagsResponse.value.success) {
 			const flagsData = flagsResponse.value.data
 			stats.value.totalFlags = flagsData.length
 			stats.value.activeFlags = flagsData.filter((f: FeatureFlag) => f.enabled).length
-			stats.value.newFlagsThisWeek = 0 // tutaj możesz policzyć na podstawie createdAt
+			stats.value.newFlagsThisWeek = 0
 			recentFlags.value = flagsData
 				.sort(
 					(a: FeatureFlag, b: FeatureFlag) =>
@@ -53,14 +49,12 @@ const loadDashboardData = async () => {
 				.slice(0, 5)
 		}
 
-		// Process users data
 		if (usersResponse.status === 'fulfilled' && usersResponse.value.success) {
 			const usersData = usersResponse.value.data
 			stats.value.totalUsers = usersData.length
 			stats.value.newUsersThisWeek = 0
 		}
 
-		// Process groups data
 		if (groupsResponse.status === 'fulfilled' && groupsResponse.value.success) {
 			const groupsData = groupsResponse.value.data
 			stats.value.totalGroups = groupsData.length
@@ -73,7 +67,6 @@ const loadDashboardData = async () => {
 	}
 }
 
-// Utility functions
 const formatRelativeTime = (dateString: string) => {
 	const date = new Date(dateString)
 	const now = new Date()
@@ -88,7 +81,6 @@ const formatRelativeTime = (dateString: string) => {
 	else return 'Just now'
 }
 
-// Initialize
 onMounted(() => {
 	loadDashboardData()
 })
@@ -97,7 +89,6 @@ onMounted(() => {
 <template>
 	<div class="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
 		<div class="max-w-6xl mx-auto space-y-10 px-4 sm:px-6 lg:px-8 py-10">
-			<!-- Header -->
 			<div class="text-center space-y-2">
 				<div
 					class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 mb-2"
@@ -108,7 +99,6 @@ onMounted(() => {
 				<p class="text-gray-500">Overview of your feature flags and system status.</p>
 			</div>
 
-			<!-- Overview Cards -->
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 				<div class="minimal-card minimal-card-hover transition hover:shadow-md hover:-translate-y-0.5">
 					<div class="flex items-center gap-2 mb-2 text-gray-500">
@@ -116,7 +106,6 @@ onMounted(() => {
 						<p class="text-sm">Total Flags</p>
 					</div>
 					<p class="text-2xl font-semibold text-gray-900">{{ stats.totalFlags }}</p>
-					<p class="text-xs text-green-600 mt-2">+{{ stats.newFlagsThisWeek }} this week</p>
 				</div>
 
 				<div class="minimal-card minimal-card-hover transition hover:shadow-md hover:-translate-y-0.5">
@@ -125,10 +114,6 @@ onMounted(() => {
 						<p class="text-sm">Active Flags</p>
 					</div>
 					<p class="text-2xl font-semibold text-green-600">{{ stats.activeFlags }}</p>
-					<p class="text-xs text-gray-500 mt-2">
-						{{ stats.totalFlags > 0 ? ((stats.activeFlags / stats.totalFlags) * 100).toFixed(1) : 0 }}% of
-						all
-					</p>
 				</div>
 
 				<div class="minimal-card minimal-card-hover transition hover:shadow-md hover:-translate-y-0.5">
@@ -137,7 +122,6 @@ onMounted(() => {
 						<p class="text-sm">Total Users</p>
 					</div>
 					<p class="text-2xl font-semibold text-gray-900">{{ stats.totalUsers }}</p>
-					<p class="text-xs text-blue-600 mt-2">+{{ stats.newUsersThisWeek }} this week</p>
 				</div>
 
 				<div class="minimal-card minimal-card-hover transition hover:shadow-md hover:-translate-y-0.5">
@@ -146,13 +130,10 @@ onMounted(() => {
 						<p class="text-sm">Total Groups</p>
 					</div>
 					<p class="text-2xl font-semibold text-gray-900">{{ stats.totalGroups }}</p>
-					<p class="text-xs text-gray-500 mt-2">{{ stats.averageGroupSize }} avg members</p>
 				</div>
 			</div>
 
-			<!-- Recent Activity and Quick Actions -->
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-				<!-- Recent Flags -->
 				<div class="minimal-card lg:col-span-2">
 					<h3 class="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-2 mb-4">
 						Recent Feature Flags
@@ -189,7 +170,6 @@ onMounted(() => {
 					</div>
 				</div>
 
-				<!-- Quick Actions -->
 				<div class="minimal-card">
 					<h3 class="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-2 mb-4">
 						Quick Actions

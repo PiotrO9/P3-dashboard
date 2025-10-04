@@ -46,7 +46,6 @@
 					</template>
 
 					<template #groups-data="{ row }">
-						<!-- TODO: Fetch and display user groups -->
 						<UBadge color="blue" variant="soft"> {{ Math.floor(Math.random() * 3) + 1 }} groups </UBadge>
 					</template>
 
@@ -63,7 +62,6 @@
 					</template>
 				</UTable>
 
-				<!-- Bulk actions -->
 				<div v-if="selected.length > 0" class="mt-4 p-4 bg-blue-50 rounded-lg">
 					<div class="flex items-center justify-between">
 						<span class="text-sm font-medium text-blue-800"> {{ selected.length }} user(s) selected </span>
@@ -78,7 +76,6 @@
 			</div>
 		</div>
 
-		<!-- Delete Confirmation Modal -->
 		<UModal v-model="deleteModalOpen">
 			<UCard>
 				<template #header>
@@ -111,7 +108,6 @@ import { navigateTo } from 'nuxt/app'
 import { computed, onMounted, ref } from 'vue'
 import type { User } from '~/types'
 
-// Add auth middleware
 definePageMeta({
 	middleware: 'auth',
 })
@@ -119,18 +115,15 @@ definePageMeta({
 const { users } = useApi()
 const toast = useToast()
 
-// Data
 const usersList = ref<User[]>([])
 const loading = ref(true)
 const selected = ref<User[]>([])
 const search = ref('')
 
-// Delete modal
 const deleteModalOpen = ref(false)
 const userToDelete = ref<User | null>(null)
 const deleting = ref(false)
 
-// Table configuration
 const columns = [
 	{
 		key: 'email',
@@ -150,7 +143,6 @@ const columns = [
 	},
 ]
 
-// Computed
 const filteredUsers = computed(() => {
 	if (!search.value) return usersList.value
 
@@ -160,7 +152,6 @@ const filteredUsers = computed(() => {
 	)
 })
 
-// Methods
 const loadUsers = async () => {
 	try {
 		loading.value = true
@@ -195,7 +186,6 @@ const confirmDelete = async () => {
 
 		await users.delete(userToDelete.value.id)
 
-		// Remove from local list
 		usersList.value = usersList.value.filter(u => u.id !== userToDelete.value!.id)
 
 		toast.add({
@@ -217,10 +207,7 @@ const confirmDelete = async () => {
 	}
 }
 
-const bulkDelete = () => {
-	// TODO: Implement bulk delete
-	console.log('Bulk delete:', selected.value)
-}
+const bulkDelete = () => console.log('Bulk delete:', selected.value)
 
 const getRowActions = (user: User) => [
 	[
@@ -250,7 +237,6 @@ const onSelect = (rows: User[]) => {
 	selected.value = rows
 }
 
-// Initialize
 onMounted(() => {
 	loadUsers()
 })

@@ -5,7 +5,6 @@ import { reactive, ref } from 'vue'
 import { z } from 'zod'
 import { useAuth } from '../composables/useAuth'
 
-// Disable default layout for login page and add guest middleware
 definePageMeta({
 	layout: false,
 	middleware: 'guest',
@@ -14,7 +13,6 @@ definePageMeta({
 const { login } = useAuth()
 const router = useRouter()
 
-// Form state and validation
 const schema = z.object({
 	email: z.string().email('Invalid email'),
 	password: z.string().min(6, 'Password must be at least 6 characters'),
