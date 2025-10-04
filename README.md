@@ -51,8 +51,10 @@ P3-dashboard/
 
 - ✅ **Flags List (`/flags`)** - UTable with toggle switches for PATCH /flags/:id/toggle
 - ✅ Rules management modal (POST /flags/:id/rules, DELETE /flags/:id/rules)
+    - New advanced targeting supports GROUP and ATTRIBUTE rules (see API docs below)
 - ✅ **Flag Evaluation (`/flags/evaluate`)** - Testing interface for POST /evaluate
 - 🔄 Add/Edit forms (TODO: implement POST /flags, PUT /flags/:id)
+- ✅ Advanced Targeting UI on edit page: add/delete GROUP & ATTRIBUTE rules with validation
 
 ### Users Management
 
@@ -330,3 +332,203 @@ middleware: 'auth'
 - **Performance**: Lazy loading and efficient data fetching
 
 The codebase follows Nuxt 3 best practices and is ready for production deployment with additional features and refinements.
+
+## 🎯 Advanced Flag Rules (Targeting)
+
+This project introduces an extensible targeting model allowing you to attach audience rules to a feature flag.
+
+### Endpoint: Add Rule
+
+POST `/api/flags/{flagId}/rules`
+
+Body (one of):
+
+GROUP rule:
+
+```json
+{
+	"targetingType": "GROUP",
+	"groupId": "beta-testers"
+}
+```
+
+ATTRIBUTE rule examples:
+
+```json
+{ "targetingType": "ATTRIBUTE", "attribute": "country", "operator": "EQUALS", "value": "PL" }
+{ "targetingType": "ATTRIBUTE", "attribute": "role", "operator": "IN", "value": ["ADMIN","SUPERUSER"] }
+{ "targetingType": "ATTRIBUTE", "attribute": "age", "operator": "GREATER_THAN", "value": 25 }
+```
+
+Validation errors (400):
+
+- Missing `targetingType`
+- GROUP: missing `groupId`
+- ATTRIBUTE: missing any of `attribute`, `operator`, `value`
+- Operator/value mismatch (e.g. IN requires array)
+
+404: Flag not found
+
+Response:
+
+```json
+{
+	"success": true,
+	"rule": {
+		/* created rule */
+	}
+}
+```
+
+### Endpoint: Delete Rule
+
+DELETE `/api/flags/rules/{ruleId}`
+
+Responses:
+
+- 200 `{ success: true }`
+- 404 rule not found
+
+### Rule Data Model
+
+```ts
+type TargetingType = 'GROUP' | 'ATTRIBUTE'
+type AttributeOperator =
+	| 'EQUALS'
+	| 'IN'
+	| 'NOT_IN'
+	| 'GREATER_THAN'
+	| 'LESS_THAN'
+	| 'GREATER_OR_EQUAL'
+	| 'LESS_OR_EQUAL'
+
+interface GroupFlagRule {
+	id
+	flagId
+	targetingType: 'GROUP'
+	groupId
+	createdAt
+}
+interface AttributeFlagRule {
+	id
+	flagId
+	targetingType: 'ATTRIBUTE'
+	attribute
+	operator
+	value
+	createdAt
+}
+```
+
+### Evaluation Semantics
+
+1. Collect all rules for a flag.
+2. If there are no rules → matched = true (flag applies to everyone).
+3. If any rule matches the user context → matched = true, else false.
+4. Result by flag type when matched = false:
+    - BOOLEAN → false
+    - PERCENTAGE → false
+    - CONFIG → null
+5. When matched = true:
+    - BOOLEAN → returns flag.enabled
+    - PERCENTAGE → deterministic hash of userId against rolloutPercentage
+    - CONFIG → returns configJson
+
+### Matching Logic
+
+GROUP rule matches if `groupId` ∈ `userContext.groups`.
+
+ATTRIBUTE rule operators:
+
+- EQUALS: attr === value
+- IN: value is array and includes attr
+- NOT_IN: array does not include attr
+- GREATER_THAN / LESS_THAN / GREATER_OR_EQUAL / LESS_OR_EQUAL: numeric comparison after coercion
+
+### Example User Context
+
+```ts
+const ctx = {
+	userId: 'u_123',
+	groups: ['beta-testers', 'internal'],
+	attributes: { country: 'PL', role: 'ADMIN', age: 31 },
+}
+```
+
+### Sample Evaluation Flow
+
+```ts
+import { evaluateFlag } from '@/server/utils/evaluateFlag'
+const result = evaluateFlag(flag, ctx)
+// result.matched (boolean), result.value (depends on flag type)
+```
+
+### Notes
+
+- Current implementation uses an in-memory store (`global.__flagsStore`) as a placeholder.
+- Replace with real persistence (DB) before production.
+- Easy to extend with future targeting types (e.g. SEGMENT) by adding new union members.
+
+### Additional Supporting Endpoints (In-Memory Demo)
+
+These endpoints exist only in the current demo (no persistence) to help you experiment:
+
+Create Flag:
+
+```
+POST /api/flags
+{
+  "key": "checkout_redesign",
+  "type": "PERCENTAGE",        // optional: BOOLEAN | PERCENTAGE | CONFIG (default BOOLEAN)
+  "enabled": true,
+  "rolloutPercentage": 25,       // for PERCENTAGE
+  "configJson": { "color": "red" } // for CONFIG
+}
+```
+
+Response:
+
+```
+{ "success": true, "flag": { ... } }
+```
+
+List Rules for a Flag:
+
+```
+GET /api/flags/{flagId}/rules
+=> { "success": true, "rules": [ ... ] }
+```
+
+Evaluate Flag:
+
+```
+POST /api/flags/evaluate
+{
+  "flagId": "<id>",            // or use "key"
+  "context": {
+    "userId": "u_123",
+    "groups": ["beta-testers"],
+    "attributes": { "country": "PL", "age": 30 }
+  }
+}
+```
+
+Response:
+
+```
+{ "success": true, "result": { "matched": true, "value": true } }
+```
+
+Delete Rule:
+
+```
+DELETE /api/flags/rules/{ruleId}
+```
+
+### Roadmap Toward Persistence
+
+1. Introduce Prisma schema: `FeatureFlag`, `FlagRule` tables.
+2. Migrate in-memory helper `flagStore` to repository layer.
+3. Add audit log for rule changes.
+4. Add optimistic UI updates with rollback on error.
+5. Implement caching (L2 in-memory + DB invalidation on writes).

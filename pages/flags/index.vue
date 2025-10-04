@@ -211,15 +211,6 @@ function getRowActions(flag: FeatureFlag) {
 		],
 		[
 			{
-				label: 'Manage Rules',
-				icon: 'i-heroicons-cog-6-tooth',
-				click: function () {
-					showRules(flag)
-				},
-			},
-		],
-		[
-			{
 				label: 'Delete',
 				icon: 'i-heroicons-trash',
 				click: function () {

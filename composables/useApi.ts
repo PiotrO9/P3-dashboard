@@ -1,5 +1,5 @@
 import { createError } from 'nuxt/app'
-import type { ApiResponse, EvaluateRequest, FeatureFlag, Group, LoginCredentials, Rule, User } from '../types'
+import type { ApiResponse, FeatureFlag, Group, LoginCredentials, Rule, User } from '../types'
 
 export function useApi() {
 	async function apiCall<T>(
@@ -85,14 +85,31 @@ export function useApi() {
 			}
 			return res as any
 		},
+		// Legacy simple rules API (still routed through proxy)
 		addRule: function (id: string, rule: Partial<Rule>) {
 			return apiCall<Rule>(`/flags/${id}/rules`, { method: 'POST', body: rule })
 		},
 		deleteRule: function (flagId: string, ruleId: string) {
 			return apiCall(`/flags/${flagId}/rules`, { method: 'DELETE', body: { ruleId } })
 		},
-		evaluate: function (request: EvaluateRequest) {
-			return apiCall<{ result: boolean }>('/evaluate', { method: 'POST', body: request })
+		// Advanced rules (direct internal API)
+		getAdvancedRules: async function (flagId: string) {
+			return $fetch<{ success: boolean; rules: any[] }>(`/api/flags/${flagId}/rules`)
+		},
+		createAdvancedRule: async function (flagId: string, payload: any) {
+			return $fetch<{ success: boolean; rule: any }>(`/api/flags/${flagId}/rules`, {
+				method: 'POST',
+				body: payload,
+			})
+		},
+		deleteAdvancedRule: async function (ruleId: string) {
+			return $fetch<{ success: boolean }>(`/api/flags/rules/${ruleId}`, { method: 'DELETE' })
+		},
+		evaluateAdvanced: async function (payload: { flagId?: string; key?: string; context?: Record<string, any> }) {
+			return $fetch<{ success: boolean; result: { matched: boolean; value: any } }>(`/api/flags/evaluate`, {
+				method: 'POST',
+				body: payload,
+			})
 		},
 	}
 
