@@ -92,9 +92,10 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { navigateTo, useRoute } from 'nuxt/app'
 import { computed, onMounted, reactive, ref } from 'vue'
+// @ts-ignore
+import { definePageMeta, useApi, useHead, useToast } from '#imports'
 import type { Group } from '../../../types'
 
 definePageMeta({ middleware: 'auth' })

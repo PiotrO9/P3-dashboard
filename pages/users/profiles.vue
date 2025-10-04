@@ -205,6 +205,8 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useAuth } from '../../composables/useAuth'
+// @ts-ignore
+import { definePageMeta } from '#imports'
 const { user } = useAuth()
 
 definePageMeta({
@@ -262,11 +264,9 @@ async function saveProfile() {
 async function savePreferences() {
 	savingPreferences.value = true
 	try {
-		// Simulate API call
 		await new Promise(function (resolve) {
 			setTimeout(resolve, 1000)
 		})
-		// Show success message
 	} catch (error) {
 		console.error('Failed to save preferences:', error)
 	} finally {
@@ -276,9 +276,6 @@ async function savePreferences() {
 
 async function loadUserProfile() {
 	try {
-		// Simulate loading user data - replace with actual API call
-
-		// Mock data - replace with actual user data
 		Object.assign(profileData, {
 			fullName: user.value?.name || 'John Doe',
 			email: user.value?.email || 'john@example.com',
@@ -288,14 +285,12 @@ async function loadUserProfile() {
 			bio: 'Passionate developer with 5+ years of experience in web technologies.',
 		})
 
-		// Store original data
 		Object.assign(originalProfileData, profileData)
 	} catch (error) {
 		console.error('Failed to load user profile:', error)
 	}
 }
 
-// Initialize data on component mount
 onMounted(function () {
 	loadUserProfile()
 })

@@ -1,7 +1,6 @@
 import type { FlagRule } from '../../types'
 import { evaluateFlag } from './evaluateFlag'
 
-// Demo flag with percentage rollout and attribute + group rules
 const flag = {
 	id: 'flag_1',
 	type: 'PERCENTAGE' as const,
@@ -29,5 +28,3 @@ const ctx = {
 
 const res = evaluateFlag(flag, ctx)
 console.log('Evaluation result:', res)
-
-// Run manually with: node --loader ts-node/esm server/utils/evaluateFlag.example.ts (if ts-node installed)

@@ -215,9 +215,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { z } from 'zod'
-// Nuxt auto-imports composables at runtime; for TypeScript in single-file component we import types/composables explicitly
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - the path is provided by Nuxt at build time
+// @ts-ignore
 import { definePageMeta, useApi, useToast } from '#imports'
 import type { FeatureFlag, FlagEvaluationRequest } from '../../types'
 
@@ -238,7 +236,6 @@ async function loadFlags() {
 			flagOptions.value = res.data.map((f: FeatureFlag) => ({ label: f.key, value: f.key }))
 		}
 	} catch (e) {
-		// silent
 	} finally {
 		loadingFlags.value = false
 	}
@@ -252,7 +249,6 @@ const evaluationSchema = z.object({
 
 const evaluationState = reactive({ flagKey: '' })
 const userId = ref('')
-// groups removed per external API (only userAttributes now)
 const attributesJson = ref('{\n  "country": "PL"\n}')
 const attrSection = reactive({ id: 'attributes', label: 'Attributes (JSON)', icon: 'i-heroicons-code-bracket-square' })
 const rawSection = reactive({ id: 'raw', label: 'Raw Response', icon: 'i-heroicons-document-text' })
@@ -323,7 +319,6 @@ async function evaluateFlag() {
 		const request = buildRequest()
 		const response = await flags.evaluate(request)
 		if (response.success) {
-			// unify shapes
 			const matched = (response as any).matched ?? (response as any).result?.matched
 			const value = (response as any).value ?? (response as any).result?.value
 			lastResult.value = { matched, value }

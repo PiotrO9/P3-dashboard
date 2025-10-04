@@ -5,8 +5,8 @@ export interface FlagLike {
 	key?: string
 	enabled?: boolean
 	type?: 'BOOLEAN' | 'PERCENTAGE' | 'CONFIG'
-	rolloutPercentage?: number // for PERCENTAGE
-	configJson?: any // for CONFIG
+	rolloutPercentage?: number
+	configJson?: any
 	advancedRules?: FlagRule[]
 }
 
@@ -15,7 +15,7 @@ function ruleMatches(rule: FlagRule, ctx: EvaluateUserContext): boolean {
 		if (!ctx.groups) return false
 		return ctx.groups.includes(rule.groupId)
 	}
-	// ATTRIBUTE
+
 	const attrRule = rule as AttributeFlagRule
 	const value = ctx.attributes?.[attrRule.attribute]
 	const target = attrRule.value
@@ -61,7 +61,6 @@ export function evaluateFlag(flag: FlagLike, ctx: EvaluateUserContext): Evaluate
 		}
 	}
 
-	// matched
 	switch (flag.type) {
 		case 'BOOLEAN':
 			return { matched: true, value: !!flag.enabled }
@@ -83,7 +82,7 @@ function hashString(str: string): number {
 	let hash = 0
 	for (let i = 0; i < str.length; i++) {
 		hash = (hash << 5) - hash + str.charCodeAt(i)
-		hash |= 0 // Convert to 32bit integer
+		hash |= 0
 	}
 	return Math.abs(hash)
 }

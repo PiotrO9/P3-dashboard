@@ -1,7 +1,8 @@
 <script setup lang="ts">
-// @ts-nocheck
 import { navigateTo } from 'nuxt/app'
 import { computed, onMounted, ref } from 'vue'
+// @ts-ignore
+import { definePageMeta, useApi, useToast } from '#imports'
 import type { Group } from '../../types'
 
 definePageMeta({ middleware: 'auth' })
@@ -71,8 +72,6 @@ async function deleteGroup(group: Group) {
 	const prev = [...groupsList.value]
 	groupsList.value = groupsList.value.filter((g: any) => g.id !== group.id)
 	try {
-		// Placeholder: internal API not yet implemented for deletion.
-		// Attempt proxy call; if it fails, revert.
 		const res = await groups.delete(group.id)
 		if (!res?.success) throw new Error(res?.message || 'Delete failed')
 		toast.add({ title: 'Group deleted', description: `"${group.name}" removed`, color: 'green' })

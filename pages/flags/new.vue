@@ -119,10 +119,9 @@
 					</div>
 				</section>
 
-				<!-- Advanced Targeting Rules (New Flag Pre-Creation) -->
 				<section class="space-y-6">
 					<div class="flex items-center justify-between">
-						<h3 class="text-lg font-medium text-minimal-primary">Advanced Targeting Rules (Opcjonalne)</h3>
+						<h3 class="text-lg font-medium text-minimal-primary">Advanced Targeting Rules (Optional)</h3>
 						<div class="flex gap-2">
 							<button
 								type="button"
@@ -141,9 +140,7 @@
 						</div>
 					</div>
 
-					<div v-if="advanced.rules.length === 0" class="text-sm text-minimal-muted">
-						Brak zaawansowanych reguł.
-					</div>
+					<div v-if="advanced.rules.length === 0" class="text-sm text-minimal-muted">No advanced rules.</div>
 					<div v-else class="space-y-3">
 						<table class="w-full text-sm border border-gray-200 rounded-md overflow-hidden">
 							<thead class="bg-gray-50 text-left">
@@ -189,7 +186,6 @@
 						</table>
 					</div>
 
-					<!-- Add Rule Modal -->
 					<UModal v-model="modal.open">
 						<div class="p-5 space-y-5">
 							<h4 class="text-base font-medium text-minimal-primary">Add {{ modal.type }} Rule</h4>
@@ -299,7 +295,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { navigateTo } from 'nuxt/app'
 import { reactive, ref } from 'vue'
 
@@ -322,7 +317,6 @@ const flagState = reactive({
 	rules: [] as Array<{ condition: string; value: boolean }>,
 })
 
-// Advanced rules local (before flag exists)
 const advanced = reactive({
 	rules: [] as any[],
 })
@@ -465,7 +459,6 @@ async function createFlag() {
 
 		const created = await flags.create(payload)
 
-		// After creation, if advanced rules exist, create them sequentially
 		if (created?.success && advanced.rules.length > 0) {
 			const createdId = (created.data as any).id || (created.data as any).key
 			for (const r of advanced.rules) {

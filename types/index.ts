@@ -22,7 +22,6 @@ export interface FeatureFlag {
 	key: string
 	description?: string
 	enabled: boolean
-	// Existing simple rules (legacy) remain optional; use advancedRules for new targeting system
 	rules?: Rule[]
 	advancedRules?: FlagRule[]
 	createdAt: string
@@ -37,7 +36,6 @@ export interface Rule {
 	createdAt: string
 }
 
-// New targeting system
 export type TargetingType = 'GROUP' | 'ATTRIBUTE'
 
 export type AttributeOperator =
@@ -65,7 +63,7 @@ export interface AttributeFlagRule extends BaseFlagRule {
 	targetingType: 'ATTRIBUTE'
 	attribute: string
 	operator: AttributeOperator
-	value: any // string | number | (string | number)[] depending on operator
+	value: any
 }
 
 export type FlagRule = GroupFlagRule | AttributeFlagRule
@@ -103,7 +101,6 @@ export interface EvaluateRequest {
 	context?: Record<string, any>
 }
 
-// New, more flexible evaluation API request/response types matching /api/flags/evaluate
 export interface EvaluateAdvancedRequest {
 	flagId?: string
 	key?: string
@@ -115,7 +112,6 @@ export interface EvaluateAdvancedResponse<T = any> {
 	result: EvaluateResult<T>
 }
 
-// External service evaluation request (Fastify endpoint /evaluate)
 export interface FlagEvaluationRequest {
 	flagKey: string
 	userId?: string
@@ -126,5 +122,5 @@ export interface FlagEvaluationResult<T = any> {
 	success: boolean
 	matched?: boolean
 	value?: T | null | boolean
-	result?: { matched: boolean; value: T | null | boolean } // fallback shape
+	result?: { matched: boolean; value: T | null | boolean }
 }

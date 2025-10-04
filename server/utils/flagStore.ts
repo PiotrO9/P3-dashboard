@@ -31,7 +31,6 @@ export async function ensureFlagInStore(flagId: string, fetchFn: typeof $fetch, 
 		if (token) headers.Authorization = `Bearer ${token}`
 		let remote = await fetchFn<any>(`${apiBase}/flags/${flagId}`, { headers }).catch(async (err: any) => {
 			if (err?.status === 404 || err?.response?.status === 404) {
-				// Try list endpoint with query param fallback
 				try {
 					const list = await fetchFn<any[]>(`${apiBase}/flags`, { headers })
 					if (Array.isArray(list)) {
@@ -56,8 +55,6 @@ export async function ensureFlagInStore(flagId: string, fetchFn: typeof $fetch, 
 			flagsStore.set(flagId, stored)
 			return stored
 		}
-	} catch (e) {
-		// silent: if external fetch fails we keep behavior (404 later)
-	}
+	} catch (e) {}
 	return undefined
 }

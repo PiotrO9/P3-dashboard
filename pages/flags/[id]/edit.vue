@@ -254,8 +254,8 @@
 import { navigateTo, useRoute } from 'nuxt/app'
 import { computed, onMounted, reactive, ref } from 'vue'
 import type { FeatureFlag, Rule } from '../../../types'
-
-// Nuxt auto-imports: definePageMeta, useHead, useApi, useToast
+// @ts-ignore
+import { definePageMeta, useApi, useToast } from '#imports'
 
 definePageMeta({ middleware: 'auth' })
 
@@ -272,7 +272,6 @@ const flagState = reactive<Partial<FeatureFlag> & { rules: Array<{ id?: string; 
 	{ name: '', key: '', description: '', enabled: false, rules: [] }
 )
 
-// Advanced rules state
 const advanced = reactive({
 	rules: [] as any[],
 	loading: false,
