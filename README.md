@@ -52,7 +52,7 @@ P3-dashboard/
 - ✅ **Flags List (`/flags`)** - UTable with toggle switches for PATCH /flags/:id/toggle
 - ✅ Rules management modal (POST /flags/:id/rules, DELETE /flags/:id/rules)
     - New advanced targeting supports GROUP and ATTRIBUTE rules (see API docs below)
-- ✅ **Flag Evaluation (`/flags/evaluate`)** - Testing interface for POST /evaluate
+- ✅ **Flag Evaluation (`/flags/evaluate`)** - Advanced testing interface (userId, groups, attributes) hitting internal `/api/flags/evaluate` endpoint
 - 🔄 Add/Edit forms (TODO: implement POST /flags, PUT /flags/:id)
 - ✅ Advanced Targeting UI on edit page: add/delete GROUP & ATTRIBUTE rules with validation
 
@@ -462,6 +462,35 @@ import { evaluateFlag } from '@/server/utils/evaluateFlag'
 const result = evaluateFlag(flag, ctx)
 // result.matched (boolean), result.value (depends on flag type)
 ```
+
+### UI Evaluation Tool (`/flags/evaluate`)
+
+The evaluation page now lets you interactively test flags with rich context:
+
+Inputs:
+
+- Select existing flag (dropdown auto-populated) or type a key manually
+- Optional User ID (enables deterministic % rollout evaluation)
+- User Attributes JSON (arbitrary key/value pairs) sent as `userAttributes`
+
+Output:
+
+- Badge showing boolean or truthiness of value
+- Matched indicator (whether any targeting rule matched)
+- Raw JSON response (expandable accordion)
+- Recent evaluations history (in-memory, per session) with re-run & load-context shortcuts
+
+Behavior:
+
+1. Builds request `{ flagKey, userId?, userAttributes? }` hitting external Fastify `/evaluate` via proxy
+2. Handles invalid JSON gracefully with toast error
+3. Maintains up to 15 history entries (clearing is manual)
+
+Extending:
+
+- Add rule trace: adapt `evaluateFlag` util to include array of matched rule IDs (return shape `{ matched, value, trace: [...] }`).
+- Add attribute builder UI (key/value dynamic rows) and synthesize JSON on submission.
+- Persist history in localStorage for cross-session recall.
 
 ### Notes
 

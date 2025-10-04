@@ -180,12 +180,8 @@ onMounted(function () {
 						Quick Actions
 					</h3>
 					<div class="space-y-3">
-						<button class="btn-minimal w-full" @click="navigateTo('/flags/new')">
-							Create Feature Flag
-						</button>
-						<button class="btn-minimal-outline w-full" @click="navigateTo('/groups/new')">
-							Create Group
-						</button>
+						<button class="btn-minimal w-full" @click="navigateTo('/flags')">Flags</button>
+						<button class="btn-minimal-outline w-full" @click="navigateTo('/groups')">Groups</button>
 						<button class="btn-minimal-outline w-full" @click="navigateTo('/flags/evaluate')">
 							Evaluate Flag
 						</button>

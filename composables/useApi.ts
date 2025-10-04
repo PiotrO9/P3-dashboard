@@ -1,5 +1,14 @@
 import { createError } from 'nuxt/app'
-import type { ApiResponse, FeatureFlag, Group, LoginCredentials, Rule, User } from '../types'
+import type {
+	ApiResponse,
+	FeatureFlag,
+	FlagEvaluationRequest,
+	FlagEvaluationResult,
+	Group,
+	LoginCredentials,
+	Rule,
+	User,
+} from '../types'
 
 export function useApi() {
 	async function apiCall<T>(
@@ -121,6 +130,29 @@ export function useApi() {
 				method: 'POST',
 				body: payload,
 			})
+		},
+		evaluate: async function (payload: FlagEvaluationRequest) {
+			// External endpoint (Fastify) proxied through /api/proxy
+			// Expects { flagKey, userId?, userAttributes? }
+			const res = await apiCall<any>('/evaluate', { method: 'POST', body: payload })
+			// Normalize possible shapes into FlagEvaluationResult
+			if (res.success) {
+				const data: any = res.data
+				if (data && typeof data === 'object') {
+					if ('result' in data && data.result && typeof data.result === 'object') {
+						return {
+							success: true,
+							matched: data.result.matched,
+							value: data.result.value,
+						} as FlagEvaluationResult
+					}
+					if ('matched' in data || 'value' in data) {
+						return { success: true, matched: data.matched, value: data.value } as FlagEvaluationResult
+					}
+				}
+				return { success: true, value: data } as FlagEvaluationResult
+			}
+			return res as FlagEvaluationResult
 		},
 	}
 

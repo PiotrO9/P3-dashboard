@@ -80,7 +80,7 @@ async function handleLogout() {
 				</div>
 			</header>
 
-			<main class="flex-1 overflow-y-auto bg-white">
+			<main class="flex-1 overflow-y-auto bg-white p-6">
 				<slot />
 			</main>
 		</div>

@@ -102,3 +102,29 @@ export interface EvaluateRequest {
 	flagKey: string
 	context?: Record<string, any>
 }
+
+// New, more flexible evaluation API request/response types matching /api/flags/evaluate
+export interface EvaluateAdvancedRequest {
+	flagId?: string
+	key?: string
+	context?: EvaluateUserContext
+}
+
+export interface EvaluateAdvancedResponse<T = any> {
+	success: boolean
+	result: EvaluateResult<T>
+}
+
+// External service evaluation request (Fastify endpoint /evaluate)
+export interface FlagEvaluationRequest {
+	flagKey: string
+	userId?: string
+	userAttributes?: Record<string, any>
+}
+
+export interface FlagEvaluationResult<T = any> {
+	success: boolean
+	matched?: boolean
+	value?: T | null | boolean
+	result?: { matched: boolean; value: T | null | boolean } // fallback shape
+}
