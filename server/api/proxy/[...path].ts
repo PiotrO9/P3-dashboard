@@ -10,9 +10,7 @@ export default defineEventHandler(async function (event) {
 
 	const method = event.method || 'GET'
 
-	const headers: Record<string, string> = {
-		'Content-Type': 'application/json',
-	}
+	const headers: Record<string, string> = {}
 	if (token) headers.Authorization = `Bearer ${token}`
 
 	let body: any = undefined
@@ -21,10 +19,13 @@ export default defineEventHandler(async function (event) {
 	}
 
 	try {
+		if (body !== undefined) {
+			headers['Content-Type'] = 'application/json'
+		}
 		const response = await $fetch<any>(`${config.public.apiBase}${targetPath}`, {
 			method: method as any,
 			headers,
-			body: body ? JSON.stringify(body) : undefined,
+			body: body !== undefined ? JSON.stringify(body) : undefined,
 		})
 		return response
 	} catch (err: any) {

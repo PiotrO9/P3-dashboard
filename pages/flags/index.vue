@@ -14,7 +14,7 @@ const toast = useToast()
 const flagsList = ref<FeatureFlag[]>([])
 const loading = ref(true)
 const toggleLoading = ref<Record<string, boolean>>({})
-const selected = ref<FeatureFlag[]>([])
+// Row selection removed – no multi-select state needed
 
 const search = ref('')
 const statusFilter = ref('')
@@ -122,7 +122,8 @@ async function toggleFlag(flag: FeatureFlag) {
 				return f.id === flag.id
 			})
 			if (index !== -1) {
-				flagsList.value[index] = response.data
+				// Preserve the same reactive object reference so table & selection don't lose DOM anchors
+				Object.assign(flagsList.value[index], response.data)
 			}
 
 			toast.add({
@@ -144,9 +145,7 @@ async function toggleFlag(flag: FeatureFlag) {
 	}
 }
 
-async function bulkToggle(enabled: boolean) {
-	console.log('Bulk toggle:', enabled, selected.value)
-}
+// bulkToggle & selection removed
 
 function showRules(flag: FeatureFlag) {
 	selectedFlag.value = flag
@@ -231,9 +230,7 @@ function getRowActions(flag: FeatureFlag) {
 	]
 }
 
-function onSelect(row: FeatureFlag[]) {
-	selected.value = row
-}
+// onSelect removed – table no longer exposes selection
 
 onMounted(function () {
 	loadFlags()
@@ -278,17 +275,17 @@ onMounted(function () {
 
 			<div class="table-minimal">
 				<UTable
-					v-model="selected"
+					:model-value="[]"
 					:rows="filteredFlags"
 					:columns="columns"
 					:loading="loading"
+					row-key="id"
 					:empty-state="{
 						icon: 'i-heroicons-flag',
 						label: 'No flags found',
 						description: 'Create your first feature flag to get started.',
 					}"
 					class="w-full"
-					@select="onSelect"
 				>
 					<template #name-data="{ row }">
 						<div>
@@ -317,13 +314,7 @@ onMounted(function () {
 								{{ row.rules?.length || 0 }} rules
 							</UBadge>
 
-							<UButton
-								v-if="row.rules?.length"
-								color="blue"
-								variant="ghost"
-								size="xs"
-								@click="showRules(row)"
-							>
+							<UButton v-if="row.rules?.length" variant="ghost" size="xs" @click="showRules(row)">
 								View
 							</UButton>
 						</div>
@@ -342,21 +333,7 @@ onMounted(function () {
 					</template>
 				</UTable>
 
-				<div v-if="selected.length > 0" class="mt-4 p-4 bg-blue-50 rounded-lg">
-					<div class="flex items-center justify-between">
-						<span class="text-sm font-medium text-blue-800"> {{ selected.length }} flag(s) selected </span>
-
-						<div class="flex gap-2">
-							<UButton color="blue" variant="outline" size="sm" @click="bulkToggle(true)">
-								Enable Selected
-							</UButton>
-
-							<UButton color="blue" variant="outline" size="sm" @click="bulkToggle(false)">
-								Disable Selected
-							</UButton>
-						</div>
-					</div>
-				</div>
+				<!-- Bulk selection UI removed -->
 			</div>
 
 			<UModal v-model="rulesModalOpen" :ui="{ width: 'sm:max-w-2xl' }">

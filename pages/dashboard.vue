@@ -136,9 +136,13 @@ onMounted(function () {
 
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 				<div class="minimal-card lg:col-span-2">
-					<h3 class="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-2 mb-4">
-						Recent Feature Flags
-					</h3>
+					<div class="flex justify-between items-start">
+						<h3 class="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-2 mb-4">
+							Recent Feature Flags
+						</h3>
+
+						<NuxtLink to="/flags" class="text-lg text-blue-600 hover:underline"> View All </NuxtLink>
+					</div>
 					<div class="table-minimal">
 						<UTable
 							:rows="recentFlags"

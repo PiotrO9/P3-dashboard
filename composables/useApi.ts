@@ -32,17 +32,48 @@ export function useApi() {
 	}
 
 	const flags = {
-		getAll: function () {
-			return apiCall<FeatureFlag[]>('/flags')
+		getAll: async function () {
+			const res = await apiCall<any[]>('/flags')
+			if (res.success) {
+				// Map backend isEnabled -> enabled for UI consistency
+				return {
+					success: true,
+					data: res.data.map(function (f: any) {
+						return { ...f, enabled: f.enabled ?? f.isEnabled ?? false }
+					}),
+				} as ApiResponse<FeatureFlag[]>
+			}
+			return res as any
 		},
-		create: function (flag: Partial<FeatureFlag>) {
-			return apiCall<FeatureFlag>('/flags', { method: 'POST', body: flag })
+		create: async function (flag: Partial<FeatureFlag> & { isEnabled?: boolean }) {
+			const res = await apiCall<any>('/flags', { method: 'POST', body: flag })
+			if (res.success) {
+				return {
+					success: true,
+					data: { ...res.data, enabled: res.data.enabled ?? res.data.isEnabled ?? false },
+				}
+			}
+			return res as any
 		},
-		update: function (id: string, flag: Partial<FeatureFlag>) {
-			return apiCall<FeatureFlag>(`/flags/${id}`, { method: 'PUT', body: flag })
+		update: async function (id: string, flag: Partial<FeatureFlag> & { isEnabled?: boolean }) {
+			const res = await apiCall<any>(`/flags/${id}`, { method: 'PUT', body: flag })
+			if (res.success) {
+				return {
+					success: true,
+					data: { ...res.data, enabled: res.data.enabled ?? res.data.isEnabled ?? false },
+				}
+			}
+			return res as any
 		},
-		toggle: function (id: string) {
-			return apiCall<FeatureFlag>(`/flags/${id}/toggle`, { method: 'PATCH' })
+		toggle: async function (id: string) {
+			const res = await apiCall<any>(`/flags/${id}/toggle`, { method: 'PATCH' })
+			if (res.success) {
+				return {
+					success: true,
+					data: { ...res.data, enabled: res.data.enabled ?? res.data.isEnabled ?? false },
+				}
+			}
+			return res as any
 		},
 		addRule: function (id: string, rule: Partial<Rule>) {
 			return apiCall<Rule>(`/flags/${id}/rules`, { method: 'POST', body: rule })
