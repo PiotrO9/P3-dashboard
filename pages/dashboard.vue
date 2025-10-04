@@ -162,7 +162,7 @@ onMounted(() => {
 							:rows="recentFlags"
 							:columns="flagColumns"
 							:loading="flagsLoading"
-							class="text-sm"
+							class="text-sm text-red-600"
 							:empty-state="{
 								icon: 'i-heroicons-flag',
 								label: 'No flags yet',
@@ -172,7 +172,7 @@ onMounted(() => {
 							<template #name-data="{ row }">
 								<div>
 									<div class="font-medium text-gray-900">{{ row.name }}</div>
-									<div class="text-xs text-gray-500">{{ row.key }}</div>
+									<div class="text-xs text-gray-00">{{ row.key }}</div>
 								</div>
 							</template>
 							<template #status-data="{ row }">

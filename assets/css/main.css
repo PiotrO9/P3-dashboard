@@ -2,13 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Minimalistic Light Theme */
 @layer components {
-	/* Color Variables */
 	:root {
 		--bg-primary: #ffffff;
 		--bg-secondary: #f8f9fa;
 		--bg-tertiary: #e9ecef;
+		color-scheme: light;
 		--border-light: #dee2e6;
 		--border-main: #ced4da;
 		--text-primary: #212529;
@@ -28,7 +27,10 @@
 		--shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 	}
 
-	/* Base styles */
+	html.dark {
+		color-scheme: light !important;
+	}
+
 	.minimal-container {
 		background-color: var(--bg-secondary);
 		min-height: 100vh;
@@ -53,7 +55,6 @@
 		box-shadow: var(--shadow-md);
 	}
 
-	/* Button styles */
 	.btn-minimal {
 		background-color: var(--accent-primary);
 		color: white;
@@ -101,7 +102,6 @@
 		color: var(--text-primary);
 	}
 
-	/* Input styles */
 	.input-minimal {
 		background-color: var(--bg-primary);
 		border: 1px solid var(--border-main);
@@ -121,7 +121,6 @@
 		color: var(--text-muted);
 	}
 
-	/* Typography */
 	.text-minimal-primary {
 		color: var(--text-primary);
 	}
@@ -134,7 +133,6 @@
 		color: var(--text-muted);
 	}
 
-	/* Login page specific */
 	.login-minimal {
 		background-color: var(--bg-secondary);
 		min-height: 100vh;
@@ -160,7 +158,6 @@
 		box-shadow: var(--shadow-md);
 	}
 
-	/* Status badges */
 	.badge-success {
 		background-color: var(--success-light);
 		color: var(--success);
@@ -197,7 +194,6 @@
 		font-weight: 500;
 	}
 
-	/* Header */
 	.header-minimal {
 		background-color: var(--bg-primary);
 		border-bottom: 1px solid var(--border-light);
@@ -205,7 +201,6 @@
 		box-shadow: var(--shadow-sm);
 	}
 
-	/* Tables */
 	.table-minimal {
 		background-color: var(--bg-primary);
 		border-radius: 8px;

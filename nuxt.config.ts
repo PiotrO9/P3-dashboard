@@ -3,6 +3,12 @@ export default defineNuxtConfig({
 	modules: ['@nuxt/ui', '@nuxt/eslint'],
 	devtools: { enabled: true },
 	css: ['~/assets/css/main.css'],
+	app: {
+		head: {
+			htmlAttrs: { class: 'light' },
+			meta: [{ name: 'color-scheme', content: 'light' }],
+		},
+	},
 	ui: {
 		global: true,
 		icons: ['heroicons'],
