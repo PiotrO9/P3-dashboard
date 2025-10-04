@@ -146,20 +146,60 @@ export function useApi() {
 	}
 
 	const groups = {
-		getAll: function () {
-			return apiCall<Group[]>('/groups')
+		getAll: async function () {
+			try {
+				return await apiCall<Group[]>('/groups')
+			} catch (e) {
+				// Fallback to internal in-memory endpoint (used in dev mode)
+				try {
+					const internal = await $fetch<{ success: boolean; data: Group[] }>(`/api/groups`)
+					if (internal?.success) return { success: true, data: internal.data }
+				} catch (_) {}
+				throw e
+			}
 		},
 		getById: function (id: string) {
 			return apiCall<Group>(`/groups/${id}`)
 		},
 		create: function (group: Partial<Group>) {
-			return apiCall<Group>('/groups', { method: 'POST', body: group })
+			const payload: any = {
+				key: group.key,
+				name: group.name,
+				description: group.description,
+				isActive: group.isActive,
+			}
+			return apiCall<Group>('/groups', { method: 'POST', body: payload }).catch(async e => {
+				try {
+					const internal = await $fetch<{ success: boolean; data: Group }>(`/api/groups`, {
+						method: 'POST',
+						body: payload,
+					})
+					if (internal?.success) return internal as any
+				} catch (_) {}
+				throw e
+			})
 		},
 		update: function (id: string, group: Partial<Group>) {
-			return apiCall<Group>(`/groups/${id}`, { method: 'PUT', body: group })
+			return apiCall<Group>(`/groups/${id}`, { method: 'PUT', body: group }).catch(async e => {
+				// fallback internal
+				try {
+					const internal = await $fetch<{ success: boolean; data: Group }>(`/api/groups/${id}`, {
+						method: 'PUT',
+						body: group,
+					})
+					if (internal?.success) return internal as any
+				} catch (_) {}
+				throw e
+			})
 		},
 		delete: function (id: string) {
-			return apiCall(`/groups/${id}`, { method: 'DELETE' })
+			return apiCall(`/groups/${id}`, { method: 'DELETE' }).catch(async e => {
+				try {
+					const internal = await $fetch<{ success: boolean }>(`/api/groups/${id}`, { method: 'DELETE' })
+					if (internal?.success) return internal as any
+				} catch (_) {}
+				throw e
+			})
 		},
 		getMembers: function (groupId: string) {
 			return apiCall<User[]>(`/groups/${groupId}/members`)

@@ -183,7 +183,6 @@ onMounted(function () {
 						<button class="btn-minimal w-full" @click="navigateTo('/flags/new')">
 							Create Feature Flag
 						</button>
-						<button class="btn-minimal-outline w-full" @click="navigateTo('/users/new')">Add User</button>
 						<button class="btn-minimal-outline w-full" @click="navigateTo('/groups/new')">
 							Create Group
 						</button>
