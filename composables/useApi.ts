@@ -1,14 +1,14 @@
 import { createError } from 'nuxt/app'
 import type { ApiResponse, EvaluateRequest, FeatureFlag, Group, LoginCredentials, Rule, User } from '../types'
 
-export const useApi = () => {
-	const apiCall = async <T>(
+export function useApi() {
+	async function apiCall<T>(
 		endpoint: string,
 		options: {
 			method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 			body?: any
 		} = {}
-	): Promise<ApiResponse<T>> => {
+	): Promise<ApiResponse<T>> {
 		const { method = 'GET', body } = options
 
 		try {
@@ -32,45 +32,84 @@ export const useApi = () => {
 	}
 
 	const flags = {
-		getAll: () => apiCall<FeatureFlag[]>('/flags'),
-		create: (flag: Partial<FeatureFlag>) => apiCall<FeatureFlag>('/flags', { method: 'POST', body: flag }),
-		update: (id: string, flag: Partial<FeatureFlag>) =>
-			apiCall<FeatureFlag>(`/flags/${id}`, { method: 'PUT', body: flag }),
-		toggle: (id: string) => apiCall<FeatureFlag>(`/flags/${id}/toggle`, { method: 'PATCH' }),
-		addRule: (id: string, rule: Partial<Rule>) =>
-			apiCall<Rule>(`/flags/${id}/rules`, { method: 'POST', body: rule }),
-		deleteRule: (flagId: string, ruleId: string) =>
-			apiCall(`/flags/${flagId}/rules`, { method: 'DELETE', body: { ruleId } }),
-		evaluate: (request: EvaluateRequest) =>
-			apiCall<{ result: boolean }>('/evaluate', { method: 'POST', body: request }),
+		getAll: function () {
+			return apiCall<FeatureFlag[]>('/flags')
+		},
+		create: function (flag: Partial<FeatureFlag>) {
+			return apiCall<FeatureFlag>('/flags', { method: 'POST', body: flag })
+		},
+		update: function (id: string, flag: Partial<FeatureFlag>) {
+			return apiCall<FeatureFlag>(`/flags/${id}`, { method: 'PUT', body: flag })
+		},
+		toggle: function (id: string) {
+			return apiCall<FeatureFlag>(`/flags/${id}/toggle`, { method: 'PATCH' })
+		},
+		addRule: function (id: string, rule: Partial<Rule>) {
+			return apiCall<Rule>(`/flags/${id}/rules`, { method: 'POST', body: rule })
+		},
+		deleteRule: function (flagId: string, ruleId: string) {
+			return apiCall(`/flags/${flagId}/rules`, { method: 'DELETE', body: { ruleId } })
+		},
+		evaluate: function (request: EvaluateRequest) {
+			return apiCall<{ result: boolean }>('/evaluate', { method: 'POST', body: request })
+		},
 	}
 
 	const users = {
-		getAll: () => apiCall<User[]>('/users'),
-		getById: (id: string) => apiCall<User>(`/users/${id}`),
-		getMe: () => apiCall<User>('/users/me'),
-		create: (user: Partial<User>) => apiCall<User>('/users', { method: 'POST', body: user }),
-		delete: (id: string) => apiCall(`/users/${id}`, { method: 'DELETE' }),
-		getUserGroups: (userId: string) => apiCall<Group[]>(`/users/${userId}/groups`),
+		getAll: function () {
+			return apiCall<User[]>('/users')
+		},
+		getById: function (id: string) {
+			return apiCall<User>(`/users/${id}`)
+		},
+		getMe: function () {
+			return apiCall<User>('/users/me')
+		},
+		create: function (user: Partial<User>) {
+			return apiCall<User>('/users', { method: 'POST', body: user })
+		},
+		delete: function (id: string) {
+			return apiCall(`/users/${id}`, { method: 'DELETE' })
+		},
+		getUserGroups: function (userId: string) {
+			return apiCall<Group[]>(`/users/${userId}/groups`)
+		},
 	}
 
 	const groups = {
-		getAll: () => apiCall<Group[]>('/groups'),
-		getById: (id: string) => apiCall<Group>(`/groups/${id}`),
-		create: (group: Partial<Group>) => apiCall<Group>('/groups', { method: 'POST', body: group }),
-		update: (id: string, group: Partial<Group>) => apiCall<Group>(`/groups/${id}`, { method: 'PUT', body: group }),
-		delete: (id: string) => apiCall(`/groups/${id}`, { method: 'DELETE' }),
-		getMembers: (groupId: string) => apiCall<User[]>(`/groups/${groupId}/members`),
-		addUser: (groupId: string, userId: string) =>
-			apiCall(`/groups/${groupId}/users`, { method: 'POST', body: { userId } }),
-		removeUser: (groupId: string, userId: string) =>
-			apiCall(`/groups/${groupId}/users/${userId}`, { method: 'DELETE' }),
+		getAll: function () {
+			return apiCall<Group[]>('/groups')
+		},
+		getById: function (id: string) {
+			return apiCall<Group>(`/groups/${id}`)
+		},
+		create: function (group: Partial<Group>) {
+			return apiCall<Group>('/groups', { method: 'POST', body: group })
+		},
+		update: function (id: string, group: Partial<Group>) {
+			return apiCall<Group>(`/groups/${id}`, { method: 'PUT', body: group })
+		},
+		delete: function (id: string) {
+			return apiCall(`/groups/${id}`, { method: 'DELETE' })
+		},
+		getMembers: function (groupId: string) {
+			return apiCall<User[]>(`/groups/${groupId}/members`)
+		},
+		addUser: function (groupId: string, userId: string) {
+			return apiCall(`/groups/${groupId}/users`, { method: 'POST', body: { userId } })
+		},
+		removeUser: function (groupId: string, userId: string) {
+			return apiCall(`/groups/${groupId}/users/${userId}`, { method: 'DELETE' })
+		},
 	}
 
 	const auth = {
-		login: (credentials: LoginCredentials) =>
-			$fetch<{ user: User; success: boolean }>(`/api/auth/login`, { method: 'POST', body: credentials }),
-		logout: () => $fetch(`/api/auth/logout`, { method: 'POST' }),
+		login: function (credentials: LoginCredentials) {
+			return $fetch<{ user: User; success: boolean }>(`/api/auth/login`, { method: 'POST', body: credentials })
+		},
+		logout: function () {
+			return $fetch(`/api/auth/logout`, { method: 'POST' })
+		},
 	}
 
 	return { flags, users, groups, auth }

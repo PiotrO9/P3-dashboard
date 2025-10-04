@@ -143,16 +143,16 @@ const columns = [
 	},
 ]
 
-const filteredUsers = computed(() => {
+const filteredUsers = computed(function () {
 	if (!search.value) return usersList.value
 
 	const searchTerm = search.value.toLowerCase()
-	return usersList.value.filter(
-		user => user.email.toLowerCase().includes(searchTerm) || user.name?.toLowerCase().includes(searchTerm)
-	)
+	return usersList.value.filter(function (user: User) {
+		return user.email.toLowerCase().includes(searchTerm) || user.name?.toLowerCase().includes(searchTerm)
+	})
 })
 
-const loadUsers = async () => {
+async function loadUsers() {
 	try {
 		loading.value = true
 		const response = await users.getAll()
@@ -173,12 +173,12 @@ const loadUsers = async () => {
 	}
 }
 
-const deleteUser = (user: User) => {
+function deleteUser(user: User) {
 	userToDelete.value = user
 	deleteModalOpen.value = true
 }
 
-const confirmDelete = async () => {
+async function confirmDelete() {
 	if (!userToDelete.value) return
 
 	try {
@@ -186,7 +186,9 @@ const confirmDelete = async () => {
 
 		await users.delete(userToDelete.value.id)
 
-		usersList.value = usersList.value.filter(u => u.id !== userToDelete.value!.id)
+		usersList.value = usersList.value.filter(function (u: User) {
+			return u.id !== userToDelete.value!.id
+		})
 
 		toast.add({
 			title: 'User deleted',
@@ -207,37 +209,47 @@ const confirmDelete = async () => {
 	}
 }
 
-const bulkDelete = () => console.log('Bulk delete:', selected.value)
+function bulkDelete() {
+	console.log('Bulk delete:', selected.value)
+}
 
-const getRowActions = (user: User) => [
-	[
-		{
-			label: 'View Details',
-			icon: 'i-heroicons-eye',
-			click: () => navigateTo(`/users/${user.id}`),
-		},
-	],
-	[
-		{
-			label: 'Edit',
-			icon: 'i-heroicons-pencil',
-			click: () => navigateTo(`/users/${user.id}/edit`),
-		},
-	],
-	[
-		{
-			label: 'Delete',
-			icon: 'i-heroicons-trash',
-			click: () => deleteUser(user),
-		},
-	],
-]
+function getRowActions(user: User) {
+	return [
+		[
+			{
+				label: 'View Details',
+				icon: 'i-heroicons-eye',
+				click: function () {
+					navigateTo(`/users/${user.id}`)
+				},
+			},
+		],
+		[
+			{
+				label: 'Edit',
+				icon: 'i-heroicons-pencil',
+				click: function () {
+					navigateTo(`/users/${user.id}/edit`)
+				},
+			},
+		],
+		[
+			{
+				label: 'Delete',
+				icon: 'i-heroicons-trash',
+				click: function () {
+					deleteUser(user)
+				},
+			},
+		],
+	]
+}
 
-const onSelect = (rows: User[]) => {
+function onSelect(rows: User[]) {
 	selected.value = rows
 }
 
-onMounted(() => {
+onMounted(function () {
 	loadUsers()
 })
 </script>

@@ -2,29 +2,37 @@ import { createError, navigateTo, useCookie, useState } from 'nuxt/app'
 import { computed, readonly, watch } from 'vue'
 import type { LoginCredentials, User } from '../types'
 
-export const useAuth = () => {
+export function useAuth() {
 	const userCookie = useCookie<User | null>('auth.user', {
-		default: () => null,
+		default: function () {
+			return null
+		},
 		sameSite: 'lax',
 		secure: process.env.NODE_ENV === 'production',
 		httpOnly: false,
 	})
 
-	const hasTokenCookie = () => !!userCookie.value
+	function hasTokenCookie(): boolean {
+		return !!userCookie.value
+	}
 
-	const user = useState<User | null>('auth.user', () => userCookie.value || null)
+	const user = useState<User | null>('auth.user', function () {
+		return userCookie.value || null
+	})
 
-	const isAuthenticated = computed(() => !!(user.value && user.value.id && hasTokenCookie()))
+	const isAuthenticated = computed(function () {
+		return !!(user.value && user.value.id && hasTokenCookie())
+	})
 
 	watch(
 		user,
-		(newUser: User | null) => {
+		function (newUser: User | null) {
 			userCookie.value = newUser
 		},
 		{ deep: true }
 	)
 
-	const login = async (credentials: LoginCredentials) => {
+	async function login(credentials: LoginCredentials) {
 		try {
 			const response = await $fetch<any>('/api/auth/login', {
 				method: 'POST',
@@ -46,7 +54,7 @@ export const useAuth = () => {
 		}
 	}
 
-	const logout = async () => {
+	async function logout() {
 		try {
 			await $fetch('/api/auth/logout', { method: 'POST' })
 		} catch (error) {
@@ -57,7 +65,7 @@ export const useAuth = () => {
 		}
 	}
 
-	const refreshUser = async () => {
+	async function refreshUser() {
 		if (!isAuthenticated.value) return
 		try {
 			const response = await $fetch<any>('/api/proxy/users/me')

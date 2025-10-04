@@ -65,21 +65,22 @@ const ruleState = reactive({
 	value: true,
 })
 
-const filteredFlags = computed(() => {
+const filteredFlags = computed(function () {
 	let filtered = flagsList.value
 
 	if (search.value) {
 		const searchTerm = search.value.toLowerCase()
-		filtered = filtered.filter(
-			flag =>
+		filtered = filtered.filter(function (flag: FeatureFlag) {
+			return (
 				flag.name.toLowerCase().includes(searchTerm) ||
 				flag.key.toLowerCase().includes(searchTerm) ||
 				flag.description?.toLowerCase().includes(searchTerm)
-		)
+			)
+		})
 	}
 
 	if (statusFilter.value) {
-		filtered = filtered.filter(flag => {
+		filtered = filtered.filter(function (flag: FeatureFlag) {
 			if (statusFilter.value === 'enabled') return flag.enabled
 			if (statusFilter.value === 'disabled') return !flag.enabled
 			return true
@@ -89,7 +90,7 @@ const filteredFlags = computed(() => {
 	return filtered
 })
 
-const loadFlags = async () => {
+async function loadFlags() {
 	try {
 		loading.value = true
 		const response = await flags.getAll()
@@ -110,14 +111,16 @@ const loadFlags = async () => {
 	}
 }
 
-const toggleFlag = async (flag: FeatureFlag) => {
+async function toggleFlag(flag: FeatureFlag) {
 	try {
 		toggleLoading.value[flag.id] = true
 
 		const response = await flags.toggle(flag.id)
 
 		if (response.success) {
-			const index = flagsList.value.findIndex(f => f.id === flag.id)
+			const index = flagsList.value.findIndex(function (f: FeatureFlag) {
+				return f.id === flag.id
+			})
 			if (index !== -1) {
 				flagsList.value[index] = response.data
 			}
@@ -141,14 +144,16 @@ const toggleFlag = async (flag: FeatureFlag) => {
 	}
 }
 
-const bulkToggle = async (enabled: boolean) => console.log('Bulk toggle:', enabled, selected.value)
+async function bulkToggle(enabled: boolean) {
+	console.log('Bulk toggle:', enabled, selected.value)
+}
 
-const showRules = (flag: FeatureFlag) => {
+function showRules(flag: FeatureFlag) {
 	selectedFlag.value = flag
 	rulesModalOpen.value = true
 }
 
-const addRule = async () => {
+async function addRule() {
 	if (!selectedFlag.value) return
 
 	try {
@@ -174,7 +179,7 @@ const addRule = async () => {
 	}
 }
 
-const deleteRule = async (flagId: string, ruleId: string) => {
+async function deleteRule(flagId: string, ruleId: string) {
 	try {
 		await flags.deleteRule(flagId, ruleId)
 
@@ -194,35 +199,43 @@ const deleteRule = async (flagId: string, ruleId: string) => {
 	}
 }
 
-const getRowActions = (flag: FeatureFlag) => [
-	[
-		{
-			label: 'Edit',
-			icon: 'i-heroicons-pencil',
-			click: () => navigateTo(`/flags/${flag.id}/edit`),
-		},
-	],
-	[
-		{
-			label: 'Manage Rules',
-			icon: 'i-heroicons-cog-6-tooth',
-			click: () => showRules(flag),
-		},
-	],
-	[
-		{
-			label: 'Delete',
-			icon: 'i-heroicons-trash',
-			click: () => console.log('Delete flag:', flag.id),
-		},
-	],
-]
+function getRowActions(flag: FeatureFlag) {
+	return [
+		[
+			{
+				label: 'Edit',
+				icon: 'i-heroicons-pencil',
+				click: function () {
+					navigateTo(`/flags/${flag.id}/edit`)
+				},
+			},
+		],
+		[
+			{
+				label: 'Manage Rules',
+				icon: 'i-heroicons-cog-6-tooth',
+				click: function () {
+					showRules(flag)
+				},
+			},
+		],
+		[
+			{
+				label: 'Delete',
+				icon: 'i-heroicons-trash',
+				click: function () {
+					console.log('Delete flag:', flag.id)
+				},
+			},
+		],
+	]
+}
 
-const onSelect = (row: FeatureFlag[]) => {
+function onSelect(row: FeatureFlag[]) {
 	selected.value = row
 }
 
-onMounted(() => {
+onMounted(function () {
 	loadFlags()
 })
 </script>

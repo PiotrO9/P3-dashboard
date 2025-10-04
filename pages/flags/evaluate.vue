@@ -167,7 +167,7 @@ const historyColumns = [
 	},
 ]
 
-const evaluateFlag = async () => {
+async function evaluateFlag() {
 	try {
 		evaluating.value = true
 
@@ -220,12 +220,12 @@ const evaluateFlag = async () => {
 	}
 }
 
-const rerunEvaluation = (item: EvaluationHistoryItem) => {
+function rerunEvaluation(item: EvaluationHistoryItem) {
 	evaluationState.flagKey = item.flagKey
 	contextString.value = item.context ? JSON.stringify(item.context, null, 2) : '{}'
 }
 
-onMounted(() => {
+onMounted(function () {
 	evaluationState.flagKey = 'feature.new-dashboard'
 	contextString.value = JSON.stringify(
 		{

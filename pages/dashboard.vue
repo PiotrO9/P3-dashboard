@@ -28,7 +28,7 @@ const flagColumns = [
 	{ key: 'updatedAt', label: 'Last Updated' },
 ]
 
-const loadDashboardData = async () => {
+async function loadDashboardData() {
 	try {
 		const [flagsResponse, usersResponse, groupsResponse] = await Promise.allSettled([
 			flags.getAll(),
@@ -39,13 +39,14 @@ const loadDashboardData = async () => {
 		if (flagsResponse.status === 'fulfilled' && flagsResponse.value.success) {
 			const flagsData = flagsResponse.value.data
 			stats.value.totalFlags = flagsData.length
-			stats.value.activeFlags = flagsData.filter((f: FeatureFlag) => f.enabled).length
+			stats.value.activeFlags = flagsData.filter(function (f: FeatureFlag) {
+				return f.enabled
+			}).length
 			stats.value.newFlagsThisWeek = 0
 			recentFlags.value = flagsData
-				.sort(
-					(a: FeatureFlag, b: FeatureFlag) =>
-						new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-				)
+				.sort(function (a: FeatureFlag, b: FeatureFlag) {
+					return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+				})
 				.slice(0, 5)
 		}
 
@@ -67,7 +68,7 @@ const loadDashboardData = async () => {
 	}
 }
 
-const formatRelativeTime = (dateString: string) => {
+function formatRelativeTime(dateString: string) {
 	const date = new Date(dateString)
 	const now = new Date()
 	const diffMs = now.getTime() - date.getTime()
@@ -81,7 +82,7 @@ const formatRelativeTime = (dateString: string) => {
 	else return 'Just now'
 }
 
-onMounted(() => {
+onMounted(function () {
 	loadDashboardData()
 })
 </script>

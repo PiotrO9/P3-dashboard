@@ -253,7 +253,7 @@ const flagState = reactive({
 	rules: [] as Array<{ condition: string; value: boolean }>,
 })
 
-const generateKey = () => {
+function generateKey() {
 	if (flagState.name && !flagState.key) {
 		const kebabCase = flagState.name
 			.toLowerCase()
@@ -265,15 +265,15 @@ const generateKey = () => {
 	}
 }
 
-const addRule = () => {
+function addRule() {
 	flagState.rules.push({ condition: '', value: true })
 }
-const removeRule = (index: number) => {
+function removeRule(index: number) {
 	flagState.rules.splice(index, 1)
 	if (flagState.rules.length === 0) showRules.value = false
 }
 
-const createFlag = async () => {
+async function createFlag() {
 	creating.value = true
 	try {
 		const payload = {

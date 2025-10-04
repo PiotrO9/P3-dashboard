@@ -8,11 +8,27 @@ const route = useRoute()
 
 const userMenuItems = [
 	[{ label: user.value?.email || '', slot: 'account', disabled: true }],
-	[{ label: 'Dashboard', icon: 'i-heroicons-home', click: () => navigateTo('/dashboard') }],
-	[{ label: 'Profile', icon: 'i-heroicons-user', click: () => navigateTo('/users/profiles') }],
+	[
+		{
+			label: 'Dashboard',
+			icon: 'i-heroicons-home',
+			click: function () {
+				navigateTo('/dashboard')
+			},
+		},
+	],
+	[
+		{
+			label: 'Profile',
+			icon: 'i-heroicons-user',
+			click: function () {
+				navigateTo('/users/profiles')
+			},
+		},
+	],
 ]
 
-const pageTitle = computed(() => {
+const pageTitle = computed(function () {
 	const pathSegments = route.path.split('/').filter(Boolean)
 
 	if (pathSegments.length === 0 || pathSegments[0] === 'dashboard') {
@@ -28,7 +44,7 @@ const pageTitle = computed(() => {
 	return titles[pathSegments[0]] || 'Admin Panel'
 })
 
-const handleLogout = async () => {
+async function handleLogout() {
 	try {
 		await logout()
 	} catch (error) {

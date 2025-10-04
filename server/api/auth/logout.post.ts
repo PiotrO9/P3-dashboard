@@ -1,6 +1,6 @@
 import { defineEventHandler, setCookie } from 'h3'
 
-export default defineEventHandler(async event => {
+export default defineEventHandler(async function (event) {
 	setCookie(event, 'auth.token', '', {
 		httpOnly: true,
 		sameSite: 'lax',

@@ -8,7 +8,7 @@ interface ExternalLoginResponse {
 	success?: boolean
 }
 
-export default defineEventHandler(async event => {
+export default defineEventHandler(async function (event) {
 	const body = await readBody<{ email: string; password: string }>(event)
 	const config = useRuntimeConfig()
 

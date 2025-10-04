@@ -1,6 +1,6 @@
 import { defineNuxtRouteMiddleware, navigateTo, useCookie } from 'nuxt/app'
 
-export default defineNuxtRouteMiddleware(to => {
+export default defineNuxtRouteMiddleware(function (to) {
 	const userCookie = useCookie<any>('auth.user')
 	const isAuthenticated = !!(userCookie.value && userCookie.value.id)
 

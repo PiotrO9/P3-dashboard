@@ -204,6 +204,8 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import { useAuth } from '../../composables/useAuth'
+const { user } = useAuth()
 
 definePageMeta({
 	middleware: 'auth',
@@ -231,22 +233,24 @@ const preferences = reactive({
 	timezone: 'Europe/Warsaw',
 })
 
-const toggleEditMode = () => {
+function toggleEditMode() {
 	if (isEditing.value) {
 		cancelEdit()
 		Object.assign(originalProfileData, profileData)
 	}
 }
 
-const cancelEdit = () => {
+function cancelEdit() {
 	Object.assign(profileData, originalProfileData)
 	isEditing.value = false
 }
 
-const saveProfile = async () => {
+async function saveProfile() {
 	saving.value = true
 	try {
-		await new Promise(resolve => setTimeout(resolve, 1000))
+		await new Promise(function (resolve) {
+			setTimeout(resolve, 1000)
+		})
 		Object.assign(originalProfileData, profileData)
 		isEditing.value = false
 	} catch (error) {
@@ -255,11 +259,13 @@ const saveProfile = async () => {
 	}
 }
 
-const savePreferences = async () => {
+async function savePreferences() {
 	savingPreferences.value = true
 	try {
 		// Simulate API call
-		await new Promise(resolve => setTimeout(resolve, 1000))
+		await new Promise(function (resolve) {
+			setTimeout(resolve, 1000)
+		})
 		// Show success message
 	} catch (error) {
 		console.error('Failed to save preferences:', error)
@@ -268,7 +274,7 @@ const savePreferences = async () => {
 	}
 }
 
-const loadUserProfile = async () => {
+async function loadUserProfile() {
 	try {
 		// Simulate loading user data - replace with actual API call
 
@@ -290,7 +296,7 @@ const loadUserProfile = async () => {
 }
 
 // Initialize data on component mount
-onMounted(() => {
+onMounted(function () {
 	loadUserProfile()
 })
 </script>
