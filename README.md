@@ -71,6 +71,46 @@ P3-dashboard/
 
 - 🔄 Complete groups management (TODO)
 
+## 🔐 Authentication (Updated: HTTP-only Cookies)
+
+Authentication now uses secure, HTTP-only cookies to store the session token. The token is never exposed to client-side JavaScript, reducing XSS risk.
+
+How it works:
+
+- POST `/api/auth/login` (internal) forwards credentials to external API `/users/login`.
+- Server sets `auth.token` as `httpOnly`, `sameSite=lax`, `secure` in production.
+- Client receives only the `user` object (stored in a non-HTTP-only `auth.user` cookie for hydration).
+- All subsequent API calls go through `/api/proxy/*`, where the server injects the `Authorization: Bearer <token>` header using the httpOnly cookie.
+- Logout: POST `/api/auth/logout` clears the token cookie.
+
+Key files:
+
+- `server/api/auth/login.post.ts`
+- `server/api/auth/logout.post.ts`
+- `server/api/proxy/[...path].ts`
+- `composables/useAuth.ts`
+- `composables/useApi.ts`
+
+Middleware now only checks for the presence of a valid `auth.user` cookie.
+
+Benefits:
+
+- Token not accessible via `document.cookie` or JS.
+- Centralized auth header injection.
+- Simplified client composables.
+
+Previous localStorage/token logic has been removed.
+
+Usage example:
+
+```ts
+const { login, logout, user, isAuthenticated } = useAuth()
+await login({ email, password })
+await logout()
+```
+
+API usage remains unchanged in pages/components because `useApi` internally routes through the proxy.
+
 ## 📝 Key Implementation: Feature Flags List Page
 
 Here's the main **`pages/flags/index.vue`** implementation as requested:

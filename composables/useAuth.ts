@@ -1,106 +1,45 @@
-import { createError, navigateTo, useCookie, useRuntimeConfig, useState } from 'nuxt/app'
+import { createError, navigateTo, useCookie, useState } from 'nuxt/app'
 import { computed, readonly, watch } from 'vue'
 import type { LoginCredentials, User } from '../types'
 
 export const useAuth = () => {
-	// Use cookies for SSR hydration consistency
+	// User cookie (non-httpOnly so we can hydrate client state). Token will be httpOnly and managed server-side.
 	const userCookie = useCookie<User | null>('auth.user', {
 		default: () => null,
 		sameSite: 'lax',
-		secure: false, // Set to true in production with HTTPS
+		secure: process.env.NODE_ENV === 'production',
 		httpOnly: false,
 	})
 
-	const tokenCookie = useCookie<string | null>('auth.token', {
-		default: () => null,
-		sameSite: 'lax',
-		secure: false, // Set to true in production with HTTPS
-		httpOnly: false,
-	})
+	// We keep a reactive boolean for auth state; token itself is never exposed to client JS anymore.
+	const hasTokenCookie = () => {
+		// We cannot read the httpOnly token cookie directly; rely on heuristic: user + server validation flows.
+		return !!userCookie.value
+	}
 
-	// Use useState with cookie initialization
-	const user = useState<User | null>('auth.user', () => {
-		// Initialize from cookie or localStorage
-		if (userCookie.value) {
-			return userCookie.value
-		}
-
-		if (import.meta.client) {
-			const stored = localStorage.getItem('auth.user')
-			if (stored) {
-				try {
-					const parsed = JSON.parse(stored)
-					userCookie.value = parsed
-					return parsed
-				} catch (e) {
-					localStorage.removeItem('auth.user')
-				}
-			}
-		}
-
-		return null
-	})
-
-	const token = useState<string | null>('auth.token', () => {
-		// Initialize from cookie or localStorage
-		if (tokenCookie.value) {
-			return tokenCookie.value
-		}
-
-		if (import.meta.client) {
-			const stored = localStorage.getItem('auth.token')
-			if (stored) {
-				tokenCookie.value = stored
-				return stored
-			}
-		}
-
-		return null
-	})
+	const user = useState<User | null>('auth.user', () => userCookie.value || null)
 
 	const isAuthenticated = computed(() => {
-		return !!(user.value && token.value && user.value.id && token.value.length > 0)
+		return !!(user.value && user.value.id && hasTokenCookie())
 	})
 
-	// Sync state with cookies and localStorage
 	watch(
 		user,
 		(newUser: User | null) => {
 			userCookie.value = newUser
-			if (import.meta.client) {
-				if (newUser) {
-					localStorage.setItem('auth.user', JSON.stringify(newUser))
-				} else {
-					localStorage.removeItem('auth.user')
-				}
-			}
 		},
 		{ deep: true }
 	)
 
-	watch(token, (newToken: string | null) => {
-		tokenCookie.value = newToken
-		if (import.meta.client) {
-			if (newToken) {
-				localStorage.setItem('auth.token', newToken)
-			} else {
-				localStorage.removeItem('auth.token')
-			}
-		}
-	})
-
 	const login = async (credentials: LoginCredentials) => {
 		try {
-			const config = useRuntimeConfig()
-
-			const response = await $fetch<any>(`${config.public.apiBase}/users/login`, {
+			const response = await $fetch<any>('/api/auth/login', {
 				method: 'POST',
 				body: credentials,
 			})
 
-			if (response && response.token && response.user) {
+			if (response && response.user) {
 				user.value = response.user
-				token.value = response.token
 				return response
 			}
 
@@ -116,51 +55,32 @@ export const useAuth = () => {
 
 	const logout = async () => {
 		try {
-			if (isAuthenticated.value) {
-				const config = useRuntimeConfig()
-				await $fetch(`${config.public.apiBase}/auth/logout`, {
-					method: 'POST',
-					headers: {
-						Authorization: `Bearer ${token.value}`,
-					},
-				})
-			}
+			await $fetch('/api/auth/logout', { method: 'POST' })
 		} catch (error) {
 			console.error('Logout error:', error)
 		} finally {
-			// Clear state regardless of API success
 			user.value = null
-			token.value = null
-
-			// Redirect to login
 			await navigateTo('/login')
 		}
 	}
 
 	const refreshUser = async () => {
 		if (!isAuthenticated.value) return
-
 		try {
-			const config = useRuntimeConfig()
-			const response = await $fetch<any>(`${config.public.apiBase}/users/me`, {
-				headers: {
-					Authorization: `Bearer ${token.value}`,
-				},
-			})
-
-			if (response && response.success && response.data) {
-				user.value = response.data
+			// Call proxy to fetch current user; proxy adds Authorization automatically from httpOnly cookie
+			const response = await $fetch<any>('/api/proxy/users/me')
+			if (response && (response.user || response.data)) {
+				// Support both direct user or ApiResponse shape
+				user.value = response.user || response.data
 			}
 		} catch (error) {
 			console.error('Error refreshing user:', error)
-			// If token is invalid, logout
 			await logout()
 		}
 	}
 
 	return {
 		user: readonly(user),
-		token: readonly(token),
 		isAuthenticated: readonly(isAuthenticated),
 		login,
 		logout,

@@ -1,49 +1,28 @@
-import { createError, useCookie, useRuntimeConfig } from 'nuxt/app'
-import { computed } from 'vue'
+import { createError } from 'nuxt/app'
 import type { ApiResponse, EvaluateRequest, FeatureFlag, Group, LoginCredentials, Rule, User } from '../types'
 
 export const useApi = () => {
-	const config = useRuntimeConfig()
-
-	// Access token directly from cookie to avoid circular dependency
-	const tokenCookie = useCookie<string>('auth.token')
-	const token = computed(() => tokenCookie.value)
-
+	// Internal helper hitting server proxy which supplies Authorization from httpOnly cookie
 	const apiCall = async <T>(
 		endpoint: string,
 		options: {
 			method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 			body?: any
-			requiresAuth?: boolean
 		} = {}
 	): Promise<ApiResponse<T>> => {
-		const { method = 'GET', body, requiresAuth = false } = options
-
-		const headers: Record<string, string> = {
-			'Content-Type': 'application/json',
-		}
-
-		// Add authorization header if token exists and auth is required
-		if (requiresAuth && token.value) {
-			headers.Authorization = `Bearer ${token.value}`
-		}
+		const { method = 'GET', body } = options
 
 		try {
-			const response = await $fetch<any>(`${config.public.apiBase}${endpoint}`, {
+			const response = await $fetch<any>(`/api/proxy${endpoint}`, {
 				method,
-				headers,
 				body: body ? JSON.stringify(body) : undefined,
+				headers: { 'Content-Type': 'application/json' },
 			})
 
-			// Check if response is in ApiResponse format or direct data
 			if (response && typeof response === 'object' && 'success' in response && 'data' in response) {
 				return response as ApiResponse<T>
 			} else {
-				// Wrap direct response in ApiResponse format
-				return {
-					success: true,
-					data: response as T,
-				} as ApiResponse<T>
+				return { success: true, data: response as T } as ApiResponse<T>
 			}
 		} catch (error: any) {
 			console.error('API Error:', error)
@@ -54,7 +33,6 @@ export const useApi = () => {
 		}
 	}
 
-	// Flags API
 	const flags = {
 		getAll: () => apiCall<FeatureFlag[]>('/flags'),
 		create: (flag: Partial<FeatureFlag>) => apiCall<FeatureFlag>('/flags', { method: 'POST', body: flag }),
@@ -69,43 +47,33 @@ export const useApi = () => {
 			apiCall<{ result: boolean }>('/evaluate', { method: 'POST', body: request }),
 	}
 
-	// Users API
 	const users = {
-		getAll: () => apiCall<User[]>('/users', { requiresAuth: true }),
-		getById: (id: string) => apiCall<User>(`/users/${id}`, { requiresAuth: true }),
-		getMe: () => apiCall<User>('/users/me', { requiresAuth: true }),
+		getAll: () => apiCall<User[]>('/users'),
+		getById: (id: string) => apiCall<User>(`/users/${id}`),
+		getMe: () => apiCall<User>('/users/me'),
 		create: (user: Partial<User>) => apiCall<User>('/users', { method: 'POST', body: user }),
-		delete: (id: string) => apiCall(`/users/${id}`, { method: 'DELETE', requiresAuth: true }),
-		getUserGroups: (userId: string) => apiCall<Group[]>(`/users/${userId}/groups`, { requiresAuth: true }),
+		delete: (id: string) => apiCall(`/users/${id}`, { method: 'DELETE' }),
+		getUserGroups: (userId: string) => apiCall<Group[]>(`/users/${userId}/groups`),
 	}
 
-	// Groups API
 	const groups = {
-		getAll: () => apiCall<Group[]>('/groups', { requiresAuth: true }),
-		getById: (id: string) => apiCall<Group>(`/groups/${id}`, { requiresAuth: true }),
-		create: (group: Partial<Group>) =>
-			apiCall<Group>('/groups', { method: 'POST', body: group, requiresAuth: true }),
-		update: (id: string, group: Partial<Group>) =>
-			apiCall<Group>(`/groups/${id}`, { method: 'PUT', body: group, requiresAuth: true }),
-		delete: (id: string) => apiCall(`/groups/${id}`, { method: 'DELETE', requiresAuth: true }),
-		getMembers: (groupId: string) => apiCall<User[]>(`/groups/${groupId}/members`, { requiresAuth: true }),
+		getAll: () => apiCall<Group[]>('/groups'),
+		getById: (id: string) => apiCall<Group>(`/groups/${id}`),
+		create: (group: Partial<Group>) => apiCall<Group>('/groups', { method: 'POST', body: group }),
+		update: (id: string, group: Partial<Group>) => apiCall<Group>(`/groups/${id}`, { method: 'PUT', body: group }),
+		delete: (id: string) => apiCall(`/groups/${id}`, { method: 'DELETE' }),
+		getMembers: (groupId: string) => apiCall<User[]>(`/groups/${groupId}/members`),
 		addUser: (groupId: string, userId: string) =>
-			apiCall(`/groups/${groupId}/users`, { method: 'POST', body: { userId }, requiresAuth: true }),
+			apiCall(`/groups/${groupId}/users`, { method: 'POST', body: { userId } }),
 		removeUser: (groupId: string, userId: string) =>
-			apiCall(`/groups/${groupId}/users/${userId}`, { method: 'DELETE', requiresAuth: true }),
+			apiCall(`/groups/${groupId}/users/${userId}`, { method: 'DELETE' }),
 	}
 
-	// Auth API
 	const auth = {
 		login: (credentials: LoginCredentials) =>
-			apiCall<{ user: User; token: string }>('/users/login', { method: 'POST', body: credentials }),
-		logout: () => apiCall('/users/logout', { method: 'POST', requiresAuth: true }),
+			$fetch<{ user: User; success: boolean }>(`/api/auth/login`, { method: 'POST', body: credentials }),
+		logout: () => $fetch(`/api/auth/logout`, { method: 'POST' }),
 	}
 
-	return {
-		flags,
-		users,
-		groups,
-		auth,
-	}
+	return { flags, users, groups, auth }
 }
